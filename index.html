@@ -35,10 +35,10 @@
         </div>
         <ul class="nav-links">
           <li><a href="#about">О клубе</a></li>
-          <li><a href="#rent">Аренда</a></li>
-          <li><a href="#trainings">Турниры и тренировки</a></li>
+          <!-- <li><a href="#rent">Аренда</a></li> -->
+          <li><a href="#activities">Турниры и тренировки</a></li>
           <li><a href="#prices">Цены</a></li>
-          <li><a href="#videos">Тренеры</a></li>
+          <li><a href="#trainers">Тренеры</a></li>
           <li><a href="#reviews">Отзывы</a></li>
           <li><a href="#contacts">Контакты</a></li>
         </ul>
@@ -71,11 +71,11 @@
         <img :src="mainSection.image" alt="" />
         <div class="content">
           <h1>{{ mainSection.heading }}</h1>
-          <h4>{{ mainSection.subheading }}</h4>
+          <h3>{{ mainSection.subheading }}</h3>
         </div>
       </div>
 
-      <div class="about-block">
+      <div id="about" class="about-block">
         <div class="text-section">
           <h2>{{ aboutClub.heading }}</h2>
           <p>{{ aboutClub.text }}</p>
@@ -135,7 +135,7 @@
         </div>
       </div>
 
-      <div class="news-block">
+      <div id="news" class="news-block">
         <h2 class="title-container">Новости и акции</h2>
         <div class="news-container">
           <div
@@ -165,22 +165,27 @@
               <button class="modal-close" @click="closeModal()">Закрыть</button>
             </div>
             <h3 class="modal-title">{{ selectedNews.title }}</h3>
-            <img
-              :src="selectedNews.image"
-              alt="News Image"
-              class="modal-image"
-            />
-            <div
-              class="modal-text"
-              v-html="formatText(selectedNews.text)"
-            ></div>
+            <div class="modal-news-content">
+              <img
+                :src="selectedNews.image"
+                alt="News Image"
+                class="modal-image"
+              />
+              <div
+                class="modal-text"
+                v-html="formatText(selectedNews.text)"
+              ></div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="schedule-block">
-        <h2 class="title-container">Расписание</h2>
-
+      <div id="activities" class="schedule-block">
+        <h2 class="title-container">Турниры и тренировки</h2>
+        <p>
+          Регистрация на актуальные турниры и тренировки -
+          <a href="https://rttf.ru/lucenter">на странице клуба</a> на RTTF.ru
+        </p>
         <!-- Мобильная версия -->
         <div class="day-selector">
           <button
@@ -247,7 +252,7 @@
         </div>
       </div>
 
-      <div class="coaches-block">
+      <div id="trainers" class="coaches-block">
         <h2 class="title-container">Тренеры клуба</h2>
         <div class="coaches-container">
           <div class="coach-card" v-for="coach in coaches" :key="coach.id">
@@ -389,7 +394,7 @@
         </div>
       </div>
 
-      <div class="pricing-block">
+      <div id="prices" class="pricing-block">
         <div class="title-container">
           <h2>{{ prices.title }}</h2>
         </div>
@@ -412,7 +417,7 @@
         <div class="title-container">
           <h2>{{ reviews.title }}</h2>
           <div class="average-rating">
-            <span>Мой рейтинг</span>
+            <span>Средний рейтинг клуба</span>
             <div class="review-rating">
               <img
                 v-for="index in 5"
@@ -424,6 +429,7 @@
             </div>
             <span>{{ reviews.averageRating }}</span>
           </div>
+          <a href="https://rttf.ru/reviews">Посмотреть все отзывы на RTTF.ru</a>
         </div>
         <div class="reviews-container">
           <div
@@ -468,7 +474,7 @@
         </div>
       </div>
 
-      <div class="contact-section">
+      <div id="contacts" class="contact-section">
         <div class="contact-info">
           <h2>{{ contacts.title }}</h2>
 
@@ -493,6 +499,9 @@
             <span class="hours-text">{{ hours.hours }}</span>
           </div>
           <div class="nav-phone margin-top">
+            <a v-if="contacts.phone" :href="`tel:${contacts.phoneNumber}`"
+              >{{ contacts.phone }}</a
+            >
             <a
               v-if="contacts.whatsapp"
               :href="contacts.whatsapp"
@@ -509,9 +518,6 @@
             >
               <img src="images/logo-telegram.svg" alt="Telegram" />
             </a>
-            <a v-if="contacts.phone" :href="`tel:${contacts.phoneNumber}`"
-              >{{ contacts.phone }}</a
-            >
           </div>
           <a
             v-if="contacts.email"
@@ -548,8 +554,7 @@
             />
           </a>
           <div class="footer-text">
-            Тренер по настольному теннису {{ contacts.trainerName }} {{
-            contacts.trainerSurname }} © 2023
+            Клуб настольного тенниса {{ contacts.clubName }} © 2023
           </div>
         </div>
       </footer>
