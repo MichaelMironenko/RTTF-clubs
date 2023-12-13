@@ -33,15 +33,41 @@
             <span>{{ contacts.clubName.toUpperCase() }}</span>
           </div>
         </div>
-        <ul class="nav-links">
-          <li><a href="#about">О клубе</a></li>
-          <!-- <li><a href="#rent">Аренда</a></li> -->
-          <li><a href="#activities">Турниры и тренировки</a></li>
-          <li><a href="#prices">Цены</a></li>
-          <li><a href="#trainers">Тренеры</a></li>
-          <li><a href="#reviews">Отзывы</a></li>
-          <li><a href="#contacts">Контакты</a></li>
+        <ul class="nav-links" :class="{ 'active': isNavOpen }">
+          <li>
+            <a href="#about" @click.prevent="handleNavLinkClick('#about')"
+              >О клубе</a
+            >
+          </li>
+          <li>
+            <a
+              href="#activities"
+              @click.prevent="handleNavLinkClick('#activities')"
+              >Турниры и тренировки</a
+            >
+          </li>
+          <li>
+            <a href="#prices" @click.prevent="handleNavLinkClick('#prices')"
+              >Цены</a
+            >
+          </li>
+          <li>
+            <a href="#trainers" @click.prevent="handleNavLinkClick('#trainers')"
+              >Тренеры</a
+            >
+          </li>
+          <li>
+            <a href="#reviews" @click.prevent="handleNavLinkClick('#reviews')"
+              >Отзывы</a
+            >
+          </li>
+          <li>
+            <a href="#contacts" @click.prevent="handleNavLinkClick('#contacts')"
+              >Контакты</a
+            >
+          </li>
         </ul>
+
         <div class="nav-phone">
           <a
             v-if="contacts.whatsapp"
@@ -59,19 +85,46 @@
           >
             <img src="images/logo-telegram.svg" alt="Telegram" />
           </a>
-          <a v-if="contacts.phone" :href="`tel:${contacts.phoneNumber}`"
+          <a v-if="contacts.phone" :href="`tel:${contacts.phone}`"
             >{{ contacts.phone }}</a
           >
         </div>
         <div class="nav-hamburger" @click="toggleNav">☰</div>
-        <div class="nav-close" @click="closeNav">✕</div>
+        <div
+          class="nav-close"
+          :class="{ 'active': isNavOpen }"
+          @click="closeNav"
+        >
+          ✕
+        </div>
       </nav>
 
       <div class="bg">
-        <img :src="mainSection.image" alt="" />
+        <img :src="mainSection.image" class="main-bg" alt="" />
         <div class="content">
           <h1>{{ mainSection.heading }}</h1>
           <h3>{{ mainSection.subheading }}</h3>
+          <div class="nav-phone">
+            <a
+              v-if="contacts.whatsapp"
+              :href="contacts.whatsapp"
+              target="_blank"
+              class="nav-icon"
+            >
+              <img src="images/logo-whatsapp.svg" alt="WhatsApp" />
+            </a>
+            <a
+              v-if="contacts.telegram"
+              :href="contacts.telegram"
+              target="_blank"
+              class="nav-icon"
+            >
+              <img src="images/logo-telegram.svg" alt="Telegram" />
+            </a>
+            <a v-if="contacts.phone" :href="`tel:${contacts.phoneNumber}`"
+              >{{ contacts.phone }}</a
+            >
+          </div>
         </div>
       </div>
 
@@ -145,6 +198,7 @@
             @click="openModal(item)"
           >
             <div
+              v-if="item.image"
               class="news-card__image"
               loading="lazy"
               :style="{ backgroundImage: 'url(' + item.image + ')' }"
@@ -152,29 +206,39 @@
             <div class="news-card__content">
               <div class="news-card__date">{{ formatDate(item.date) }}</div>
               <div class="news-card__title">{{ item.title }}</div>
-              <div class="news-card__text">{{ item.text }}</div>
+              <div
+                class="news-card__text"
+                :style="`display: -webkit-box;
+  -webkit-box-orient: vertical; -webkit-line-clamp: ${item.image ? '4' : '14'}`"
+              >
+                {{ item.text }}
+              </div>
             </div>
           </div>
         </div>
         <div class="modal" v-if="selectedNews" @click.self="closeModal()">
-          <div class="modal-content">
-            <div class="modal-header">
-              <span class="modal-date"
-                >{{ formatDate(selectedNews.date) }}</span
-              >
-              <button class="modal-close" @click="closeModal()">Закрыть</button>
-            </div>
-            <h3 class="modal-title">{{ selectedNews.title }}</h3>
-            <div class="modal-news-content">
-              <img
-                :src="selectedNews.image"
-                alt="News Image"
-                class="modal-image"
-              />
-              <div
-                class="modal-text"
-                v-html="formatText(selectedNews.text)"
-              ></div>
+          <div class="modal-content-wrapper">
+            <button class="modal-close" @click="closeModal()">Закрыть</button>
+            <div class="modal-content">
+              <!-- Содержимое модального окна -->
+              <div class="modal-news-content">
+                <!-- Содержимое новостей -->
+                <img
+                  v-if="selectedNews.image"
+                  :src="selectedNews.image"
+                  alt="News Image"
+                  class="modal-image"
+                />
+                <span class="modal-date"
+                  >{{ formatDate(selectedNews.date) }}</span
+                >
+                <h3 class="modal-title">{{ selectedNews.title }}</h3>
+                <div
+                  class="modal-text"
+                  v-html="formatText(selectedNews.text)"
+                ></div>
+                <a href="{{ selectedNews.link}}">Обсуждение на RTTF.ru</a>
+              </div>
             </div>
           </div>
         </div>
@@ -411,6 +475,29 @@
             </li>
           </ul>
         </div>
+        <p>
+          Бронируйте стол по телефону
+          <a v-if="contacts.phone" :href="`tel:${contacts.phone}`"
+            >{{ contacts.phone }}</a
+          >
+          , через
+          <a
+            v-if="contacts.whatsapp"
+            :href="contacts.whatsapp"
+            target="_blank"
+            class="nav-icon"
+          >
+            Телеграм </a
+          >или
+          <a
+            v-if="contacts.telegram"
+            :href="contacts.telegram"
+            target="_blank"
+            class="nav-icon"
+          >
+            WhatsApp
+          </a>
+        </p>
       </div>
 
       <div id="reviews" class="reviews-block">
@@ -429,13 +516,13 @@
             </div>
             <span>{{ reviews.averageRating }}</span>
           </div>
-          <a href="https://rttf.ru/reviews">Посмотреть все отзывы на RTTF.ru</a>
+          <!-- <a href="https://rttf.ru/reviews">Посмотреть все отзывы на RTTF.ru</a> -->
         </div>
         <div class="reviews-container">
           <div
-            v-for="review in reviews.reviewData"
-            :key="review.name"
             class="review-card"
+            v-for="(review, index) in reviews.reviewData"
+            :key="review.name"
           >
             <div class="review-header">
               <div class="review-avatar-wrapper">
@@ -469,7 +556,17 @@
                 <div class="review-date">{{ review.date }}</div>
               </div>
             </div>
-            <div class="review-comment">{{ review.comment }}</div>
+            <div
+              class="review-comment"
+              :class="{ expanded: expandedComment === index, 'cursor-pointer': isCommentLong(review.comment) }"
+              @click="isCommentLong(review.comment) ? toggleComment(index) : null"
+            >
+              {{ review.comment }}
+              <span
+                v-if="isCommentLong(review.comment) && expandedComment !== index"
+                >Раскрыть комментарий</span
+              >
+            </div>
           </div>
         </div>
       </div>

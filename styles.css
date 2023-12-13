@@ -9,7 +9,7 @@
 }
 
 *:target {
-  scroll-margin-top: 62px; /* Высота вашего фиксированного меню */
+  scroll-margin-top: 62px;
 }
 
 [v-cloak] {
@@ -20,7 +20,6 @@
   box-sizing: border-box;
 }
 
-/* Общие стили */
 body {
   margin: 0;
   padding: 0;
@@ -29,7 +28,6 @@ body {
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
-  /* 27px */
 }
 
 h1,
@@ -56,7 +54,6 @@ a {
   color: var(--ping-pong-blue);
 }
 
-/* Навигационное меню */
 .navbar {
   display: flex;
   top: 0px;
@@ -104,15 +101,14 @@ a {
 }
 
 .bg {
-  position: relative; /* This makes it a positioning context for absolutely positioned children */
-  width: 100%;
+  position: relative;
   height: 550px;
   overflow: hidden;
   margin-top: 55px;
   text-align: left;
 }
 
-.bg img {
+.main-bg {
   width: 100%;
   min-height: 100%;
   position: absolute;
@@ -132,6 +128,10 @@ a {
   font-weight: normal;
 }
 
+.bg a {
+  color: white;
+}
+
 @media (max-width: 430px) {
   .bg h1 {
     font-size: 40px;
@@ -139,33 +139,27 @@ a {
 }
 
 .content {
-  position: absolute; /* This takes it out of the flow and positions it relative to .bg */
-  top: 50%; /* Center vertically */
-  left: 30%; /* Center horizontally */
-  transform: translate(
-    -50%,
-    -50%
-  ); /* Align the center of .content with the center of .bg */
-  width: calc(100% - 64px); /* Assuming you want some padding from the edges */
-  max-width: 40%; /* On larger screens, it takes up 40% of the width of .bg */
+  position: absolute;
+  top: 50%;
+  left: 30%;
+  transform: translate(-50%, -50%);
+  width: calc(100% - 64px);
+  max-width: 40%;
   padding: 32px 32px 24px 32px;
   box-sizing: border-box;
   border-radius: 16px;
-  background: #06685bcc;
+  background: #1320417a;
   backdrop-filter: blur(12.9px);
-  color: white; /* Assuming the text is white */
-  text-align: left; /* Optional: if you want the text centered within the .content */
+  color: white;
+  text-align: left;
 }
 
 @media (max-width: 768px) {
   .content {
     max-width: 90%;
-    top: 50%; /* Center vertically */
-    left: 50%; /* Center horizontally */
-    transform: translate(
-      -50%,
-      -50%
-    ); /* Align the center of .content with the center of .bg */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     width: calc(100% - 32px);
   }
 }
@@ -176,13 +170,38 @@ a {
   flex-grow: 1;
   color: white;
   font-size: 16px;
-  /* text-transform: uppercase; */
+  text-transform: uppercase;
   font-style: normal;
-  font-weight: 400;
+  font-weight: 500;
 }
 
 .nav-links li:not(:last-child) {
   margin-right: 1%;
+}
+
+.nav-links.active {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  font-size: 18px;
+  width: 100%;
+  text-align: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--black);
+  z-index: 999;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.nav-close.active {
+  display: flex;
+}
+
+.nav-hamburger.active {
+  display: none;
 }
 
 .nav-phone {
@@ -204,7 +223,7 @@ a {
 .nav-icon {
   width: 24px;
   height: 24px;
-  margin-right: 8px;
+  margin-right: 12px;
 }
 
 .nav-hamburger,
@@ -216,39 +235,13 @@ a {
   flex-shrink: 0;
 }
 
-.nav-links.active {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  font-size: 18px;
-  width: 100%;
-  text-align: left;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  background-color: #213551ee;
-  backdrop-filter: blur(12.9px) !important;
-  z-index: 999;
-  padding: 16px;
-  overflow-y: auto;
-}
-
-.nav-close.active {
-  display: flex;
-}
-
-.nav-hamburger.active {
-  display: none;
-}
-
 @media (max-width: 1180px) {
-  .nav-hamburger {
-    display: block;
-  }
-
   .nav-links {
     display: none;
+  }
+
+  .nav-hamburger {
+    display: block;
   }
 
   .nav-close {
@@ -260,7 +253,7 @@ a {
   }
 }
 
-@media (max-width: 500px) {
+@media (max-width: 600px) {
   .nav-phone {
     display: none;
   }
@@ -275,14 +268,6 @@ a {
     margin-right: 0;
   }
 
-  .nav-links {
-    display: none;
-  }
-
-  .nav-hamburger {
-    display: block;
-  }
-
   .nav-phone {
     margin-left: 0;
   }
@@ -293,17 +278,13 @@ a {
   justify-content: space-between;
 }
 
-.text-section {
-  max-width: 500px;
-}
-
-.carousel {
-  max-width: 500px;
-}
-
 @media (max-width: 430px) {
   .carousel {
     max-width: 100%;
+  }
+
+  .nav-phone {
+    display: none;
   }
 }
 
@@ -336,13 +317,14 @@ h1 {
 }
 
 .text-section {
-  flex: 1 1 300px;
+  flex: 1 1 500px;
   max-width: 640px;
-  padding: 20px;
+  min-width: 320px;
+  padding-right: 16px;
 }
 
 .carousel {
-  flex: 1 1 300px;
+  flex: 1 1 450px;
   max-width: 640px;
 }
 
@@ -364,12 +346,14 @@ h1 {
   max-width: 500px;
   width: 100%;
   overflow: hidden;
+  border-radius: 16px;
 }
 
 .carousel-aspect-ratio {
   padding-top: 75%;
   position: relative;
   width: 100%;
+  border-radius: 16px;
 }
 
 .carousel-inner {
@@ -391,6 +375,7 @@ h1 {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 16px;
 }
 
 .carousel-control-prev,
@@ -424,27 +409,32 @@ h1 {
 }
 
 .carousel-indicators {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  margin-bottom: 8px;
+  margin: 8px;
 }
 
 .carousel-indicators span {
-  height: 8px;
-  width: 8px;
+  height: 6px;
+  width: 6px;
   margin: 0 4px;
-  background-color: #bbb;
+  background-color: #bebebe;
   border-radius: 50%;
   display: inline-block;
-  cursor: pointer; /* Добавить курсор указатель, если индикаторы интерактивные */
+  cursor: pointer;
 }
 
 .carousel-indicators span.active {
-  background-color: #717171;
+  background-color: var(--black50);
+  height: 9px;
+  width: 9px;
 }
 
 .news-container {
   display: flex;
-  overflow-x: auto; /* Enables horizontal scrolling */
+  overflow-x: auto;
   align-items: flex-start;
   padding: 16px 16px;
 }
@@ -458,12 +448,12 @@ h1 {
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0px 2px 16px 0px rgba(0, 0, 0, 0.15);
+  height: 440px;
 }
 
 .news-card__image {
   width: 100%;
-  height: 0;
-  padding-top: 90%; /* 10:9 aspect ratio */
+  height: 240px;
   background-size: cover;
   background-position: center;
 }
@@ -471,6 +461,15 @@ h1 {
 .news-card__content {
   padding: 16px;
   gap: 16px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.news-card__text {
+  overflow: hidden;
+  line-height: 1.5;
+  flex-grow: 1;
 }
 
 .news-block {
@@ -481,21 +480,11 @@ h1 {
 .news-card__date {
   font-size: 14px;
   color: var(--black50);
-  margin-bottom: 16px;
 }
 
 .news-card__title {
   font-size: 18px;
   font-weight: bold;
-  margin-bottom: 16px;
-}
-
-.news-card__text {
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  line-height: 1.4;
 }
 
 @media (max-width: 430px) {
@@ -506,7 +495,6 @@ h1 {
 
   .news-block {
     background-color: #eff2f4;
-    padding: 16px 0px 16px 16px;
   }
 
   .news-card__date {
@@ -518,7 +506,7 @@ h1 {
   }
 
   .news-card__title {
-    font-size: 18px; /* Smaller font size for the title on mobile devices */
+    font-size: 18px;
   }
 }
 
@@ -534,82 +522,86 @@ h1 {
   align-items: center;
   z-index: 1000;
 }
+.modal-content-wrapper {
+  position: relative;
+  max-height: 80vh;
+  max-width: 700px;
+  width: 90%;
+  overflow-y: hidden;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: white;
+  border: none;
+  border-radius: 16px;
+  padding: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  color: var(--black50);
+  z-index: 10;
+}
 
 .modal-content {
   background: white;
   padding: 20px;
-  border-radius: 5px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
-  z-index: 1001;
-  max-height: 80vh;
-  max-width: 1000px;
+  border-radius: 16px;
   overflow-y: auto;
 }
 
 .modal-news-content {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
+  display: block;
   width: 100%;
-  gap: 16px;
+  padding-bottom: 20px;
 }
 
-.modal-content h2 {
-  margin-top: 0;
+.modal-text {
+  text-align: left;
+  flex-grow: 1;
+  min-width: 300px;
+}
+
+.modal-content h3 {
+  margin: 16px 0px;
+  min-width: 250px;
 }
 
 .modal-image {
-  max-height: 300px; /* Ограничение высоты изображения */
-  width: 320px; /* Сохранение пропорций изображения */
-  object-fit: contain;
-  margin-top: 16px;
+  float: left;
+  height: 200px;
+  margin-right: 32px;
+  margin-bottom: 16px;
+  border-radius: 8px;
 }
 
 .modal-text p {
   margin-bottom: 1em;
-  width: 400px;
 }
 
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+@media (max-width: 530px) {
+  .modal-image {
+    float: unset;
+    width: auto;
+  }
 }
 
-.modal-close {
-  background: none;
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
-  color: var(--black50);
-}
-
-/* Опционально, добавьте стили для красивого оформления кнопки закрытия */
 .modal-close:hover {
-  color: #007bff; /* Пример цвета, измените на ваш выбор */
+  color: #007bff;
 }
 
 .modal-date {
   display: block;
   font-size: 16px;
   color: var(--black50);
-  margin-bottom: 16px;
 }
 
 .modal-title {
   font-size: 21px;
   margin: 0;
-}
-
-.modal-image {
-  width: 300px;
-  height: auto;
-  margin-bottom: 20px;
-}
-
-.modal-text {
-  margin-bottom: 20px;
-  text-align: justify;
 }
 
 .schedule-block {
@@ -643,7 +635,7 @@ h1 {
   grid-template-columns: 60px repeat(7, 1fr);
   position: sticky;
   top: 0;
-  background-color: #f0f0f0; /* или другой цвет фона */
+  background-color: #f0f0f0;
   z-index: 10;
 }
 
@@ -720,7 +712,7 @@ h1 {
 day-selector,
 .day-events,
 .day-selector {
-  display: none; /* Показываем переключатели дней и события */
+  display: none;
 }
 
 @media (max-width: 430px) {
@@ -743,7 +735,7 @@ day-selector,
   }
 
   .day-events {
-    display: block; /* Показываем переключатели дней и события */
+    display: block;
   }
 
   .day-selector button {
@@ -765,19 +757,17 @@ day-selector,
   }
 
   .day-selector button {
-    transition: transform 0.2s; /* Анимация уменьшения */
+    transition: transform 0.2s;
   }
 
   .day-selector button:active {
-    transform: scale(0.9); /* Уменьшение на 10% при нажатии */
+    transform: scale(0.9);
   }
 
   .day-selector button.selected-day {
-    background-color: var(
-      --ping-pong-blue
-    ); /* Укажите цвет для выбранного дня */
+    background-color: var(--ping-pong-blue);
     color: white;
-    font-weight: bold; /* Жирный шрифт для выбранного дня */
+    font-weight: bold;
   }
 
   .event-detail {
@@ -810,7 +800,7 @@ day-selector,
 .coach-card__image {
   width: 100%;
   height: 200px;
-  padding-top: calc(300px * 10 / 9); /* Aspect ratio 10:9 */
+  padding-top: calc(300px * 10 / 9);
   background-size: cover;
   background-position: center;
 }
@@ -911,25 +901,25 @@ day-selector,
 }
 
 .rating-star {
-  width: 20px; /* Или нужный размер */
+  width: 20px;
   height: auto;
 }
 
 .coach-rating-value {
-  margin-left: 8px; /* Расстояние между последней звездой и текстом рейтинга */
+  margin-left: 8px;
   font-weight: bold;
 }
 
 .coach-reviews {
   display: flex;
   align-items: center;
-  margin-left: 16px; /* Отодвигает количество отзывов к правому краю */
+  margin-left: 16px;
 }
 
 .reviews-icon {
-  width: 20px; /* Или нужный размер */
+  width: 20px;
   height: auto;
-  margin-right: 4px; /* Отступ между иконкой и текстом */
+  margin-right: 4px;
 }
 
 .reviews-block a {
@@ -965,6 +955,11 @@ day-selector,
   margin-top: 40px;
 }
 
+.pricing-block p {
+  font-weight: bold;
+  margin-top: 32px;
+}
+
 @media (max-width: 430px) {
   .pricing-block h3 {
     font-size: 18px;
@@ -983,7 +978,7 @@ day-selector,
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
   position: relative;
 }
 
@@ -1108,8 +1103,8 @@ day-selector,
 .player-rating {
   width: 50px;
   display: flex;
-  align-items: center; /* Выравнивание по центру по вертикали */
-  justify-content: center; /* Выравнивание по центру по горизонтали */
+  align-items: center;
+  justify-content: center;
   background: radial-gradient(
     116.2% 116.2% at 10% 11.25%,
     #51c276 0%,
@@ -1122,12 +1117,12 @@ day-selector,
   font-weight: 700;
   gap: 2px;
   color: white;
-  position: relative; /* Для правильного позиционирования псевдоэлемента */
+  position: relative;
 }
 
 .player-rating-icon {
-  height: 14px; /* Размер вашей звезды */
-  width: 14px; /* Размер вашей звезды */
+  height: 14px;
+  width: 14px;
 }
 
 .review-rating {
@@ -1142,6 +1137,10 @@ day-selector,
   font-size: 14px;
 }
 
+.cursor-pointer {
+  cursor: pointer;
+}
+
 .review-comment {
   font-size: 16px;
   color: var(--black);
@@ -1149,75 +1148,14 @@ day-selector,
   line-height: 1.4;
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 7; /* Ограничиваем количество строк до 7 */
+  -webkit-line-clamp: 7;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.locations-block {
-  background-color: #e6f7ff;
-  padding: 16px;
-}
-
-.locations-container {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center; /* Выравниваем элементы по верхнему краю */
-  gap: 32px;
-  padding: 20px;
-  /* Цвет фона, соответствующий вашему дизайну */
-}
-
-.clubs-container {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  max-width: 500px; /* Максимальная ширина блока с адресами клубов */
-  margin-right: 20px; /* Добавим отступ справа */
-  gap: 32px;
-}
-
-.club-name {
-  font-weight: bold;
-  color: var(--ping-pong-blue);
-  text-decoration: none;
-  font-size: 21px;
-}
-
-.club-address {
-  margin-bottom: 8px;
-  font-size: 16px;
-  line-height: 1.8;
-}
-
-.club-metro-container {
-  display: flex;
-  align-items: center;
-}
-
-.metro-icon {
-  width: 16px;
-  height: 16px;
-  margin-right: 5px;
-}
-
-.club-metro {
-  color: var(--black50);
-  font-size: 14px;
-}
-
-.map-container {
-  width: 100%;
-  border-radius: 8px;
-  overflow: hidden;
-  max-width: 400px;
-  height: 320px;
-}
-
-.contacts-block {
-  background-color: #a3bcc8;
-  padding: 16px;
+.review-comment.expanded {
+  -webkit-line-clamp: unset;
+  overflow: visible;
 }
 
 .contact-info {
@@ -1304,22 +1242,19 @@ day-selector,
   min-width: 100px;
 }
 
-/* Стили для контейнера с полями телефона и email */
 .contact-details {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
 }
 
-/* Стили для поля телефона */
 .contact-details .input-group.phone {
-  flex-grow: 0; /* Не позволяет полю расти */
-  flex-shrink: 0; /* Предотвращает уменьшение поля */
+  flex-grow: 0;
+  flex-shrink: 0;
 }
 
-/* Стили для поля email */
 .contact-details .input-group.email {
-  flex-grow: 1; /* Позволяет полю расти и занимать доступное пространство */
+  flex-grow: 1;
 }
 
 .no-top-padding {
@@ -1346,19 +1281,17 @@ day-selector,
   font-size: 14px;
 }
 
-/* Общие стили для всех полей ввода */
 input {
   height: 38px;
   width: 100%;
   border: 1px solid var(--black30);
   border-radius: 8px;
-  padding: 12px;
+  padding: 16px;
   font-size: 16px;
 }
 
-/* Стили для textarea */
 textarea {
-  height: 100px; /* Высота изменена на 100 пикселей */
+  height: 100px;
   width: 100%;
   border: 1px solid var(--black30);
   border-radius: 8px;
@@ -1484,5 +1417,5 @@ textarea {
 
 .footer-text {
   font-size: 14px;
-  color: #333; /* Цвет текста */
+  color: #333;
 }
