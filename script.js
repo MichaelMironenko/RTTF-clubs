@@ -465,7 +465,27 @@ new Vue({
           });
         });
     },
+    addCategory() {
+      sections.prices.menu.push({
+        title: "",
+        items: [],
+      });
+    },
 
+    deleteCategory(category) {
+      sections.prices.menu.splice(sections.prices.menu.indexOf(category), 1);
+    },
+
+    addItem(category) {
+      category.items.push({
+        text: "",
+        price: "",
+      });
+    },
+
+    deleteItem(category, item) {
+      category.items.splice(category.items.indexOf(item), 1);
+    },
     // Метод для перехода к событию
     navigateTo(url) {
       window.location.href = url;
