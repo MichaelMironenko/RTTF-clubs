@@ -46,6 +46,7 @@
                 label="Фоновое фото для главного блока"
                 :initial-image-data="sections.mainInfo.imageData"
                 section-id="mainInfo"
+                :isAvatar="true"
                 :single-photo="true"
                 @image-uploaded="handleImageUpload"
               ></photo-upload>
@@ -98,11 +99,22 @@
                 <input-field
                   v-for="input in sections.news.inputs"
                   :key="input.id"
+                  :id="input.id"
+                  :label="input.label"
+                  :type="input.type"
                   v-bind="input"
-                  :is-submit-attempted="isSubmitAttempted"
+                  v-model="input.value"
+                  :rows="input.rows"
                   @input-section="handleInputSection"
+                  :maxlength="input.maxlength"
+                  :required="input.required"
+                  :error="input.error"
+                  :errorMessage="input.errorMessage"
+                  :largeTextarea="input.largeTextarea"
+                  :is-submit-attempted="isSubmitAttempted"
                   section-name="news"
                 ></input-field>
+
                 <p class="hint">Показываются новости с RTTF.</p>
               </form>
             </div>
@@ -134,11 +146,22 @@
               <input-field
                 v-for="input in sections.activities.inputs"
                 :key="input.id"
+                :id="input.id"
+                :label="input.label"
+                :type="input.type"
                 v-bind="input"
-                :is-submit-attempted="isSubmitAttempted"
+                v-model="input.value"
+                :rows="input.rows"
+                :maxlength="input.maxlength"
+                :required="input.required"
+                :error="input.error"
                 @input-section="handleInputSection"
+                :errorMessage="input.errorMessage"
+                :largeTextarea="input.largeTextarea"
+                :is-submit-attempted="isSubmitAttempted"
                 section-name="activities"
               ></input-field>
+
               <div class="daystab">
                 <button
                   class="tablinks"
@@ -160,7 +183,7 @@
                       {{ event.startTime }} - {{ event.endTime }}
                     </span>
                     <span class="event-type" :class="event.type">
-                      {{ event.type | eventType }}
+                      {{ eventType(event.type) }}
                     </span>
                   </div>
                   <h4>{{ event.name }}</h4>
@@ -283,7 +306,61 @@
                   @input-section="handleInputSection"
                   section-name="coaches"
                 ></input-field>
-
+                <div class="coaches-edit-container">
+                  <div
+                    v-for="coach in sections.coaches.coachesList"
+                    :key="coach.id"
+                    class="coach-edit-card"
+                  >
+                    <h4>Тренер {{coach.id}}</h4>
+                    <input-field
+                      :id="`name-${coach.id}`"
+                      label="Имя и фамилия"
+                      :maxlength="50"
+                      v-model="coach.name"
+                      :value="coach.name"
+                    ></input-field>
+                    <input-field
+                      :id="`info-${coach.id}`"
+                      label="Информация"
+                      type="textarea"
+                      :maxlength="150"
+                      v-model="coach.info"
+                      :value="coach.info"
+                    ></input-field>
+                    <div class="buttons-row">
+                      <input-field
+                        :id="`playingExperience-${coach.id}`"
+                        label="Начал играть"
+                        type="month"
+                        v-model="coach.playingExperience"
+                        :value="coach.playingExperience"
+                      ></input-field>
+                      <input-field
+                        :id="`coachingExperience-${coach.id}`"
+                        label="Начал тренировать"
+                        type="month"
+                        v-model="coach.coachingExperience"
+                        :value="coach.coachingExperience"
+                      ></input-field>
+                    </div>
+                    <input-field
+                      :id="`profileLink-${coach.id}`"
+                      label="Ссылка на профиль RTTF"
+                      type="url"
+                      :maxlength="80"
+                      v-model="coach.profileLink"
+                      :value="coach.profileLink"
+                    ></input-field>
+                    <photo-upload
+                      :initial-image-data="coach.photo"
+                      label="Фото тренера"
+                      :is-avatar="true"
+                      :section-id="`coachPhoto-${coach.id}`"
+                      @image-uploaded="handlePhotoUpload($event, coach.id)"
+                    ></photo-upload>
+                  </div>
+                </div>
                 <!-- Переключатель "Показать мои тренировки с RTTF" -->
               </form>
             </div>
@@ -483,7 +560,7 @@
       </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://unpkg.com/vue@next"></script>
     <script src="script.js"></script>
   </body>
 </html>
