@@ -236,44 +236,6 @@ label {
   color: red;
 }
 
-.photo-upload-area {
-  margin-top: 24px;
-}
-
-.single-image .photo-preview {
-  width: 100%;
-  max-width: 480px;
-  object-fit: cover;
-  max-height: 300px;
-  aspect-ratio: 2.9 / 1;
-}
-
-.multiple-images {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2px;
-}
-
-.image-container {
-  width: 32.7%;
-  height: auto;
-  position: relative;
-}
-
-.placeholder {
-  background: rgba(255, 255, 255, 0.5);
-  width: 100%;
-  height: auto;
-  aspect-ratio: 4 / 3;
-}
-
-.photo-preview {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-}
-
 .delete-price-button {
   width: 20px;
   height: 20px;
@@ -317,15 +279,72 @@ label {
   align-items: center;
   justify-content: center;
   border: 2px dashed #ccc;
-  width: 100%;
   max-width: 480px;
+  flex-grow: 1;
   height: 100px;
-  flex-shrink: 0;
   border-radius: 8px;
   transition: background-color 0.3s;
   gap: 8px;
   cursor: pointer;
-  margin-top: 16px;
+}
+
+.photo-upload-area {
+  margin-top: 24px;
+}
+
+.flex-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  width: 100%;
+  gap: 16px;
+}
+
+.avatar-preview {
+  width: 100px;
+  height: 100px;
+  flex-shrink: 0;
+}
+
+.avatar-preview .photo-preview {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.single-image .photo-preview {
+  width: 100%;
+  max-width: 480px;
+  object-fit: cover;
+  max-height: 300px;
+  aspect-ratio: 2.9 / 1;
+}
+
+.multiple-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.image-container {
+  width: 32.7%;
+  height: auto;
+  position: relative;
+}
+
+.placeholder {
+  background: rgba(255, 255, 255, 0.5);
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+}
+
+.photo-preview {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
 }
 
 .upload-icon {
@@ -658,6 +677,7 @@ input:checked + .slider:before {
   padding: 16px;
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.17);
   border-radius: 8px;
+  margin: 16px 0;
 }
 
 .coach-edit-card h4 {
@@ -729,18 +749,6 @@ input:checked + .slider:before {
 }
 .button-container {
   padding: 16px 0;
-}
-
-.avatar-mode {
-  display: flex;
-  align-items: center;
-  width: 100%;
-}
-
-.avatar-preview {
-  width: 100px;
-  height: 100px;
-  flex-shrink: 0;
 }
 
 .save-button {
@@ -858,6 +866,7 @@ input:checked + .slider:before {
   align-items: center;
   border-radius: 8px;
   gap: 8px;
+  margin-top: 16px;
 }
 
 .event-card .daystab {
@@ -903,7 +912,7 @@ input:checked + .slider:before {
   padding: 0;
 }
 
-. .add-button-new {
+.add-button-new {
   padding: 12px 12px;
   font-size: 14px;
   background-color: white;

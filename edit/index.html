@@ -43,10 +43,18 @@
               ></input-field>
 
               <photo-upload
-                label="Фоновое фото для главного блока"
-                :initial-image-data="sections.mainInfo.imageData"
+                label="Логотип"
+                :initial-image-data="sections.mainInfo.logo"
                 section-id="mainInfo"
-                :isAvatar="true"
+                :is-avatar="true"
+                :single-photo="true"
+                @image-uploaded="handleImageUpload"
+              ></photo-upload>
+
+              <photo-upload
+                label="Фоновое фото для главного блока"
+                :initial-image-data="sections.mainInfo.background"
+                section-id="mainInfo"
                 :single-photo="true"
                 @image-uploaded="handleImageUpload"
               ></photo-upload>
@@ -58,7 +66,7 @@
 
           <!-- О клубе -->
           <div v-if="id === 'aboutClub'">
-            <h3>О себе</h3>
+            <h3>О клубе</h3>
             <form @submit.prevent="validateAndSubmit('aboutClub')">
               <input-field
                 v-for="input in sections.aboutClub.inputs"
@@ -288,7 +296,7 @@
 
           <div v-if="id === 'coaches'">
             <div class="header-with-toggle">
-              <h3>Отзывы</h3>
+              <h3>Тренеры клуба</h3>
               <div class="toggle-container">
                 <label class="switch">
                   <input type="checkbox" v-model="sections.coaches.editable" />
@@ -306,13 +314,13 @@
                   @input-section="handleInputSection"
                   section-name="coaches"
                 ></input-field>
+                <h4>Тренеры</h4>
                 <div class="coaches-edit-container">
                   <div
                     v-for="coach in sections.coaches.coachesList"
                     :key="coach.id"
                     class="coach-edit-card"
                   >
-                    <h4>Тренер {{coach.id}}</h4>
                     <input-field
                       :id="`name-${coach.id}`"
                       label="Имя и фамилия"
@@ -359,8 +367,16 @@
                       :section-id="`coachPhoto-${coach.id}`"
                       @image-uploaded="handlePhotoUpload($event, coach.id)"
                     ></photo-upload>
+                    <div class="remove-button" @click="removeCoach(coach.id)">
+                      <img src="delete.svg" alt="Удалить" class="remove-icon" />
+                      Удалить тренера
+                    </div>
                   </div>
                 </div>
+                <button @click="addCoach" class="add-button-new">
+                  Добавить тренера
+                </button>
+
                 <!-- Переключатель "Показать мои тренировки с RTTF" -->
               </form>
             </div>

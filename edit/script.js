@@ -14,6 +14,7 @@ const InputField = {
     largeTextarea: Boolean,
     isSubmitAttempted: Boolean,
     sectionName: String,
+    modelValue: String,
   },
   data() {
     return {
@@ -21,6 +22,7 @@ const InputField = {
       inputValue: this.value || "",
     };
   },
+  emits: ["update:modelValue", "input-section"],
   mounted() {
     console.log(this.props);
   },
@@ -43,9 +45,11 @@ const InputField = {
     },
   },
   methods: {
-    handleInput() {
+    handleInput(event) {
       this.userHasInput = true;
       console.log("handleInput:", this.sectionName, this.id, this.inputValue);
+
+      this.$emit("update:modelValue", event.target.value);
 
       this.$emit("input-section", {
         sectionName: this.sectionName,
@@ -180,12 +184,22 @@ const PhotoUpload = {
             const canvas = document.createElement("canvas");
             const ctx = canvas.getContext("2d");
 
-            if (this.sectionId === "mainInfo") {
+            if (this.isAvatar) {
+              // Размеры для аватара
+              const avatarWidth = 300;
+              const scaleRatio = avatarWidth / image.width;
+              width = avatarWidth;
+              height = image.height * scaleRatio;
+              startX = 0;
+              startY = 0;
+            } else if (this.sectionId === "mainInfo") {
+              // Размеры для mainInfo
               width = 1600;
               height = 550;
               startX = 0;
               startY = (image.height - (image.width / width) * height) / 2;
             } else {
+              // Стандартные размеры
               const max_width = 500;
               const scaleRatio = max_width / image.width;
               width = max_width;
@@ -198,20 +212,20 @@ const PhotoUpload = {
             canvas.height = height;
 
             if (this.sectionId === "mainInfo") {
-              // Обрезаем изображение по центру
+              // Обрезаем изображение по центру для mainInfo
               ctx.drawImage(
                 image,
                 startX,
                 startY,
                 image.width,
-                (image.width / width) * height, // sWidth и sHeight для mainInfo
+                (image.width / width) * height,
                 0,
                 0,
                 width,
                 height
               );
             } else {
-              // Уменьшаем изображение
+              // Уменьшаем изображение для аватара или стандартного размера
               ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
             }
 
@@ -233,12 +247,13 @@ const PhotoUpload = {
                   this.$emit("image-uploaded", {
                     imageData: imageDataUpdate,
                     sectionId: this.sectionId,
+                    label: this.label, // Убедитесь, что label передается
                   });
                 };
                 reader.readAsDataURL(blob);
               },
               "image/jpeg",
-              0.6 // Adjust the quality parameter between 0 and 1 as needed
+              0.6 // Качество изображения
             );
           };
           image.src = e.target.result;
@@ -270,15 +285,16 @@ const PhotoUpload = {
       this.$emit("image-uploaded", {
         imageData: newImages,
         sectionId: this.sectionId,
+        label: this.label,
       });
     },
   },
   template: `
   <div class="photo-upload-area">
     <label class="photo-label">{{ label }}</label>
-    <div :class="{ 'avatar-mode': isAvatar }">
+    <div class="flex-wrap">
       <!-- Обработка нескольких изображений -->
-      <div v-if="!singlePhoto" class="multiple-images">
+      <div v-if="!singlePhoto && imagesWithPlaceholder.length > 0" class="multiple-images">
         <div v-for="(item, index) in imagesWithPlaceholder" :key="index" class="image-container">
           <div v-if="item === 'placeholder'" class="placeholder"></div>
           <div v-else :draggable="true" :class="{ dragging: index === draggingIndex }"
@@ -293,7 +309,7 @@ const PhotoUpload = {
       </div>
     </div>
       <!-- Обработка одного изображения -->
-     <div v-if="singlePhoto && imageData" class="single-image" :class="{ 'avatar-preview': isAvatar }">
+     <div v-if="singlePhoto && imageData" :class="[isAvatar ? 'avatar-preview' : 'single-image']">
       <img v-if="imageData" :src="imageData" class="photo-preview" />
     </div>
 
@@ -342,19 +358,9 @@ const App = {
               error: false,
               errorMessage: "Название клуба обязательно к заполнению",
             },
-            {
-              id: "logo",
-              label: "Логотип",
-              type: "text",
-              value: "",
-              maxlength: 200,
-              required: true,
-              charsLeft: 200,
-              error: false,
-              errorMessage: "Ссылка на логотип обязательна к заполнению",
-            },
           ],
-          imageData: null,
+          logo: null,
+          background: null,
         },
         aboutClub: {
           title: "О клубе",
@@ -933,10 +939,28 @@ const App = {
     },
 
     handleImageUpload(data) {
-      if (this.sections && data.sectionId in this.sections) {
-        this.sections[data.sectionId].imageData = data.imageData;
-      } else {
+      if (!this.sections || !(data.sectionId in this.sections)) {
         console.error(`Section with id ${data.sectionId} does not exist.`);
+        return;
+      }
+      console.log(data);
+      // Проверка на конкретный sectionId и соответствующие поля
+      if (data.sectionId === "mainInfo") {
+        console.log("maininfo");
+        if (data.label === "Логотип") {
+          console.log("логотип");
+          // Сохраняем логотип
+          this.sections.mainInfo.logo = data.imageData;
+        } else if (data.label === "Фоновое фото для главного блока") {
+          // Сохраняем фоновое изображение
+          this.sections.mainInfo.background = data.imageData;
+        } else {
+          // Обработка для других изображений в разделе 'mainInfo'
+          this.sections[data.sectionId].imageData = data.imageData;
+        }
+      } else {
+        // Стандартная обработка для других разделов
+        this.sections[data.sectionId].imageData = data.imageData;
       }
     },
     loadFromLocalStorage() {
@@ -971,7 +995,9 @@ const App = {
     },
 
     removeCategory(index) {
-      this.$set(this.sections.prices.menu[index], "deleted", true);
+      if (this.sections.prices.menu[index]) {
+        this.sections.prices.menu[index].deleted = true;
+      }
     },
     selectDay(day) {
       this.sections.activities.currentDay = day;
@@ -989,7 +1015,37 @@ const App = {
     },
 
     restoreCategory(index) {
-      this.$set(this.sections.prices.menu[index], "deleted", false);
+      if (this.sections.prices.menu[index]) {
+        this.sections.prices.menu[index].deleted = false;
+      }
+    },
+
+    addCoach() {
+      const newCoach = {
+        id: this.generateUniqueId(), // Implement this method to generate a unique ID
+        name: "",
+        info: "",
+        playingExperience: "",
+        coachingExperience: "",
+        profileLink: "",
+        photo: "",
+        // Add other necessary fields as per your coach object structure
+      };
+      this.sections.coaches.coachesList.push(newCoach);
+    },
+
+    removeCoach(coachId) {
+      const index = this.sections.coaches.coachesList.findIndex(
+        (coach) => coach.id === coachId
+      );
+      if (index !== -1) {
+        this.sections.coaches.coachesList.splice(index, 1);
+      }
+    },
+
+    generateUniqueId() {
+      // Implement a logic to generate a unique ID for each new coach
+      return "uniqueId-" + Date.now();
     },
 
     addEvent() {
