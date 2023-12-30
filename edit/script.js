@@ -122,8 +122,61 @@ const PhotoUpload = {
         sectionId: this.sectionId,
       });
     }
+    this.setupTouchListeners();
   },
   methods: {
+    setupTouchListeners() {
+      const container = this.$el.querySelector(".multiple-images");
+      if (container) {
+        container.addEventListener("touchstart", this.touchStart, {
+          passive: false,
+        });
+        container.addEventListener("touchmove", this.touchMove, {
+          passive: false,
+        });
+        container.addEventListener("touchend", this.touchEnd, {
+          passive: false,
+        });
+      }
+    },
+
+    touchStart(index, event) {
+      this.dragStart(index, event);
+      event.preventDefault();
+    },
+
+    touchMove(event) {
+      if (this.draggingIndex !== -1) {
+        const touchLocation = event.targetTouches[0];
+        const targetElement = document.elementFromPoint(
+          touchLocation.clientX,
+          touchLocation.clientY
+        );
+        const targetIndex = this.getElementIndex(targetElement);
+
+        if (targetIndex !== -1) {
+          this.dragEnter(targetIndex);
+        }
+      }
+      event.preventDefault();
+    },
+
+    touchEnd() {
+      if (this.draggingIndex !== -1) {
+        this.drop();
+      }
+      event.preventDefault();
+    },
+
+    getElementIndex(element) {
+      if (element && element.parentNode) {
+        return Array.prototype.indexOf.call(
+          element.parentNode.children,
+          element
+        );
+      }
+      return -1;
+    },
     triggerUpload() {
       this.$refs.fileInput.click();
     },
@@ -279,6 +332,14 @@ const PhotoUpload = {
       }
       event.currentTarget.classList.remove("dragover");
     },
+  },
+  beforeDestroy() {
+    const container = this.$el.querySelector(".multiple-images");
+    if (container) {
+      container.removeEventListener("touchstart", this.touchStart);
+      container.removeEventListener("touchmove", this.touchMove);
+      container.removeEventListener("touchend", this.touchEnd);
+    }
   },
   watch: {
     imageData(newImages) {
