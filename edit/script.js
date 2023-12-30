@@ -839,7 +839,7 @@ const App = {
         },
       },
 
-      activeTab: "coaches",
+      activeTab: "mainInfo",
       isSubmitAttempted: false,
       saveSuccessful: false,
       isValid: false,
