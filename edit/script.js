@@ -161,7 +161,7 @@ const PhotoUpload = {
       event.preventDefault();
     },
 
-    touchEnd() {
+    touchEnd(event) {
       if (this.draggingIndex !== -1) {
         this.drop();
       }

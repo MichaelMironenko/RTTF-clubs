@@ -331,6 +331,7 @@ label {
   width: 32.7%;
   height: auto;
   position: relative;
+  -webkit-touch-callout: none;
 }
 
 .placeholder {
