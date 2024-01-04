@@ -371,7 +371,7 @@ const PhotoUpload = {
     </div>
       <!-- Обработка одного изображения -->
      <div v-if="singlePhoto && imageData" :class="[isAvatar ? 'avatar-preview' : 'single-image']">
-      <img v-if="imageData" :src="imageData" class="photo-preview" />
+      <img v-if="imageData" :src="imageData || 'user-photo.svg'" class="photo-preview" />
     </div>
 
     <!-- Зона загрузки, общая для обоих вариантов -->
@@ -1083,14 +1083,14 @@ const App = {
 
     addCoach() {
       const newCoach = {
-        id: this.generateUniqueId(), // Implement this method to generate a unique ID
+        id: this.generateUniqueId(),
         name: "",
         info: "",
         playingExperience: "",
         coachingExperience: "",
+        price: "",
         profileLink: "",
         photo: "",
-        // Add other necessary fields as per your coach object structure
       };
       this.sections.coaches.coachesList.push(newCoach);
     },
@@ -1105,7 +1105,6 @@ const App = {
     },
 
     generateUniqueId() {
-      // Implement a logic to generate a unique ID for each new coach
       return "uniqueId-" + Date.now();
     },
 
@@ -1173,6 +1172,20 @@ const App = {
 
         if (sectionId === "prices" && section.menu) {
           section.menu = section.menu.filter((category) => !category.deleted);
+        }
+
+        if (sectionId === "coaches") {
+          this.sections.coaches.coachesList =
+            this.sections.coaches.coachesList.filter((coach) => {
+              return (
+                coach.name ||
+                coach.info ||
+                coach.playingExperience ||
+                coach.coachingExperience ||
+                coach.profileLink ||
+                coach.price
+              );
+            });
         }
 
         if (isValid) {

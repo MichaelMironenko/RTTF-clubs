@@ -353,6 +353,14 @@
                       ></input-field>
                     </div>
                     <input-field
+                      :id="`price-${coach.id}`"
+                      label="Цена в час"
+                      type="number"
+                      v-model="coach.price"
+                      :value="coach.price"
+                      :min="0"
+                    ></input-field>
+                    <input-field
                       :id="`profileLink-${coach.id}`"
                       label="Ссылка на профиль RTTF"
                       type="url"
@@ -373,7 +381,7 @@
                     </div>
                   </div>
                 </div>
-                <button @click="addCoach" class="add-button-new">
+                <button @click.prevent="addCoach" class="add-button-new">
                   Добавить тренера
                 </button>
 
@@ -576,7 +584,7 @@
       </div>
     </div>
 
-    <script src="https://unpkg.com/vue@next"></script>
+    <script src="https://unpkg.com/vue@3.2.36"></script>
     <script src="script.js"></script>
   </body>
 </html>
