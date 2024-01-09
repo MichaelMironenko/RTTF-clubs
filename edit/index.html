@@ -34,16 +34,31 @@
 
             <form @submit.prevent="validateAndSubmit('mainInfo')">
               <input-field
-                v-for="input in sections.mainInfo.inputs"
-                :key="input.id"
-                v-bind="input"
+                id="displayedTitle"
+                label="Описание клуба (например 'Клуб настольного тенниса')"
+                type="text"
+                v-model="sections.mainInfo.displayedTitle"
+                :maxlength="70"
+                required
+                :error="false"
+                error-message="Введите отображаемый заголовок"
                 :is-submit-attempted="isSubmitAttempted"
-                @input-section="handleInputSection"
-                section-name="mainInfo"
+              ></input-field>
+
+              <input-field
+                id="clubName"
+                label="Название клуба"
+                type="text"
+                v-model="sections.mainInfo.clubName"
+                :maxlength="100"
+                required
+                :error="false"
+                error-message="Название клуба обязательно к заполнению"
+                :is-submit-attempted="isSubmitAttempted"
               ></input-field>
 
               <photo-upload
-                label="Логотип"
+                label="Логотип (показывается в панели навигации)"
                 :initial-image-data="sections.mainInfo.logo"
                 section-id="mainInfo"
                 :is-avatar="true"
@@ -69,17 +84,28 @@
             <h3>О клубе</h3>
             <form @submit.prevent="validateAndSubmit('aboutClub')">
               <input-field
-                v-for="input in sections.aboutClub.inputs"
-                :key="input.id"
-                v-bind="input"
+                id="displayedTitle"
+                label="Отображаемый заголовок"
+                type="text"
+                v-model="sections.aboutClub.displayedTitle"
+                :maxlength="30"
+                required
                 :is-submit-attempted="isSubmitAttempted"
-                @input-section="handleInputSection"
-                section-name="aboutClub"
+              ></input-field>
+
+              <input-field
+                id="description"
+                label="Краткое описание"
+                type="textarea"
+                v-model="sections.aboutClub.description"
+                :maxlength="1000"
+                required
+                :is-submit-attempted="isSubmitAttempted"
               ></input-field>
 
               <photo-upload
                 :initial-image-data="sections.aboutClub.imageData"
-                :label="'Галерея фото клуба'"
+                :label="'Галерея фото клуба (до 20 фото, желательно в альбомной ориентации)'"
                 :section-id="'aboutClub'"
                 :single-photo="false"
                 @image-uploaded="handleImageUpload"
@@ -97,30 +123,21 @@
               <h3>Новости и акции</h3>
               <div class="toggle-container">
                 <label class="switch">
-                  <input type="checkbox" v-model="sections.news.editable" />
+                  <input type="checkbox" v-model="sections.news.showBlock" />
                   <span class="slider round"></span>
                 </label>
               </div>
             </div>
-            <div :class="{ 'disabled-block': !sections.news.editable }">
+            <div :class="{ 'disabled-block': !sections.news.showBlock }">
               <form @submit.prevent="validateAndSubmit('news')">
                 <input-field
-                  v-for="input in sections.news.inputs"
-                  :key="input.id"
-                  :id="input.id"
-                  :label="input.label"
-                  :type="input.type"
-                  v-bind="input"
-                  v-model="input.value"
-                  :rows="input.rows"
-                  @input-section="handleInputSection"
-                  :maxlength="input.maxlength"
-                  :required="input.required"
-                  :error="input.error"
-                  :errorMessage="input.errorMessage"
-                  :largeTextarea="input.largeTextarea"
+                  id="newsTitle"
+                  label="Отображаемый заголовок"
+                  type="text"
+                  v-model="sections.news.displayedTitle"
+                  :maxlength="50"
+                  required
                   :is-submit-attempted="isSubmitAttempted"
-                  section-name="news"
                 ></input-field>
 
                 <p class="hint">Показываются новости с RTTF.</p>
@@ -144,30 +161,21 @@
                 <label class="switch">
                   <input
                     type="checkbox"
-                    v-model="sections.activities.editable"
+                    v-model="sections.activities.showBlock"
                   />
                   <span class="slider round"></span>
                 </label>
               </div>
             </div>
-            <div :class="{ 'disabled-block': !sections.activities.editable }">
+            <div :class="{ 'disabled-block': !sections.activities.showBlock }">
               <input-field
-                v-for="input in sections.activities.inputs"
-                :key="input.id"
-                :id="input.id"
-                :label="input.label"
-                :type="input.type"
-                v-bind="input"
-                v-model="input.value"
-                :rows="input.rows"
-                :maxlength="input.maxlength"
-                :required="input.required"
-                :error="input.error"
-                @input-section="handleInputSection"
-                :errorMessage="input.errorMessage"
-                :largeTextarea="input.largeTextarea"
+                id="activitiesTitle"
+                label="Отображаемый заголовок"
+                type="text"
+                v-model="sections.activities.displayedTitle"
+                :maxlength="50"
+                required
                 :is-submit-attempted="isSubmitAttempted"
-                section-name="activities"
               ></input-field>
 
               <div class="daystab">
@@ -207,11 +215,12 @@
 
                 <div v-else class="event-card gap-16">
                   <div>
+                    <label>Название активности</label>
                     <input
                       v-model="event.name"
                       type="text"
                       placeholder="Название активности"
-                      maxlength="50"
+                      :maxlength="50"
                     />
                   </div>
 
@@ -258,11 +267,14 @@
                   </div>
 
                   <div>
+                    <label
+                      >Подробности (рейтинг турнира, имя тренера и т.п.)</label
+                    >
                     <input
                       v-model="event.moreDetails"
                       type="text"
                       placeholder="Подробности"
-                      maxlength="30"
+                      :maxlength="30"
                     />
                   </div>
                   <div class="buttons-row">
@@ -299,20 +311,21 @@
               <h3>Тренеры клуба</h3>
               <div class="toggle-container">
                 <label class="switch">
-                  <input type="checkbox" v-model="sections.coaches.editable" />
+                  <input type="checkbox" v-model="sections.coaches.showBlock" />
                   <span class="slider round"></span>
                 </label>
               </div>
             </div>
-            <div :class="{ 'disabled-block': !sections.coaches.editable }">
+            <div :class="{ 'disabled-block': !sections.coaches.showBlock }">
               <form @submit.prevent="validateAndSubmit('coaches')">
                 <input-field
-                  v-for="input in sections.coaches.inputs"
-                  :key="input.id"
-                  v-bind="input"
+                  id="coachesTitle"
+                  label="Отображаемый заголовок"
+                  type="text"
+                  v-model="sections.coaches.displayedTitle"
+                  :maxlength="50"
+                  required
                   :is-submit-attempted="isSubmitAttempted"
-                  @input-section="handleInputSection"
-                  section-name="coaches"
                 ></input-field>
                 <h4>Тренеры</h4>
                 <div class="coaches-edit-container">
@@ -321,71 +334,84 @@
                     :key="coach.id"
                     class="coach-edit-card"
                   >
-                    <input-field
-                      :id="`name-${coach.id}`"
-                      label="Имя и фамилия"
-                      :maxlength="50"
-                      v-model="coach.name"
-                      :value="coach.name"
-                    ></input-field>
-                    <input-field
-                      :id="`info-${coach.id}`"
-                      label="Информация"
-                      type="textarea"
-                      :maxlength="150"
-                      v-model="coach.info"
-                      :value="coach.info"
-                    ></input-field>
-                    <div class="buttons-row">
+                    <div v-if="!coach.isDeleted">
                       <input-field
-                        :id="`playingExperience-${coach.id}`"
-                        label="Начал играть"
-                        type="month"
-                        v-model="coach.playingExperience"
-                        :value="coach.playingExperience"
+                        :id="`name-${coach.id}`"
+                        label="Имя и фамилия"
+                        :maxlength="50"
+                        v-model="coach.name"
+                        :value="coach.name"
                       ></input-field>
                       <input-field
-                        :id="`coachingExperience-${coach.id}`"
-                        label="Начал тренировать"
-                        type="month"
-                        v-model="coach.coachingExperience"
-                        :value="coach.coachingExperience"
+                        :id="`info-${coach.id}`"
+                        label="Информация"
+                        type="textarea"
+                        :maxlength="150"
+                        v-model="coach.info"
+                        :value="coach.info"
                       ></input-field>
+                      <div class="buttons-row">
+                        <input-field
+                          :id="`playingExperience-${coach.id}`"
+                          label="Начал играть"
+                          type="month"
+                          v-model="coach.playingExperience"
+                          :value="coach.playingExperience"
+                        ></input-field>
+                        <input-field
+                          :id="`coachingExperience-${coach.id}`"
+                          label="Начал тренировать"
+                          type="month"
+                          v-model="coach.coachingExperience"
+                          :value="coach.coachingExperience"
+                        ></input-field>
+                      </div>
+                      <input-field
+                        :id="`price-${coach.id}`"
+                        label="Цена в час"
+                        type="text"
+                        v-model="coach.price"
+                        :value="coach.price"
+                        :min="0"
+                        style="width: 100px"
+                      ></input-field>
+                      <input-field
+                        :id="`profileLink-${coach.id}`"
+                        label="Ссылка на профиль RTTF"
+                        type="url"
+                        :maxlength="80"
+                        v-model="coach.profileLink"
+                        :value="coach.profileLink"
+                      ></input-field>
+                      <photo-upload
+                        :initial-image-data="coach.photo"
+                        label="Фото тренера"
+                        :is-avatar="true"
+                        :section-id="`coachPhoto-${coach.id}`"
+                        @image-uploaded="handlePhotoUpload($event, coach.id)"
+                      ></photo-upload>
+                      <div class="remove-button" @click="removeCoach(coach.id)">
+                        <img
+                          src="delete.svg"
+                          alt="Удалить"
+                          class="remove-icon"
+                        />
+                        Удалить тренера
+                      </div>
                     </div>
-                    <input-field
-                      :id="`price-${coach.id}`"
-                      label="Цена в час"
-                      type="number"
-                      v-model="coach.price"
-                      :value="coach.price"
-                      :min="0"
-                    ></input-field>
-                    <input-field
-                      :id="`profileLink-${coach.id}`"
-                      label="Ссылка на профиль RTTF"
-                      type="url"
-                      :maxlength="80"
-                      v-model="coach.profileLink"
-                      :value="coach.profileLink"
-                    ></input-field>
-                    <photo-upload
-                      :initial-image-data="coach.photo"
-                      label="Фото тренера"
-                      :is-avatar="true"
-                      :section-id="`coachPhoto-${coach.id}`"
-                      @image-uploaded="handlePhotoUpload($event, coach.id)"
-                    ></photo-upload>
-                    <div class="remove-button" @click="removeCoach(coach.id)">
-                      <img src="delete.svg" alt="Удалить" class="remove-icon" />
-                      Удалить тренера
+                    <div v-else class="remove-button">
+                      <span>Тренер удален</span>
+                      <span
+                        @click="restoreCoach(coach.id)"
+                        style="color: var(--pp-blue)"
+                        >Восстановить</span
+                      >
                     </div>
                   </div>
                 </div>
                 <button @click.prevent="addCoach" class="add-button-new">
                   Добавить тренера
                 </button>
-
-                <!-- Переключатель "Показать мои тренировки с RTTF" -->
               </form>
             </div>
             <div class="button-container">
@@ -404,20 +430,21 @@
               <h3>Цены</h3>
               <div class="toggle-container">
                 <label class="switch">
-                  <input type="checkbox" v-model="sections.prices.editable" />
+                  <input type="checkbox" v-model="sections.prices.showBlock" />
                   <span class="slider round"></span>
                 </label>
               </div>
             </div>
-            <div :class="{ 'disabled-block': !sections.prices.editable }">
+            <div :class="{ 'disabled-block': !sections.prices.showBlock }">
               <form @submit.prevent="validateAndSubmit('prices')">
                 <input-field
-                  v-for="input in sections.prices.inputs"
-                  :key="input.id"
-                  v-bind="input"
+                  id="pricesTitle"
+                  label="Отображаемый заголовок"
+                  type="text"
+                  v-model="sections.prices.displayedTitle"
+                  :maxlength="50"
+                  required
                   :is-submit-attempted="isSubmitAttempted"
-                  @input-section="handleInputSection"
-                  section-name="prices"
                 ></input-field>
                 <div
                   v-for="(category, index) in sections.prices.menu"
@@ -440,16 +467,19 @@
                           Удалить
                         </div>
                       </div>
-
+                      <label>Название категории</label>
                       <input
                         type="text"
                         v-model="category.title"
-                        :placeholder="'Введите название категории ' + (index + 1)"
+                        :placeholder="'Введите название категории '"
                       />
                     </div>
 
                     <!-- Пункты ценового меню внутри категории -->
-                    <div class="category-items-header">
+                    <div
+                      v-if="category.items.length > 0"
+                      class="category-items-header"
+                    >
                       <label>Пункты категории</label>
                       <label>Цена</label>
                     </div>
@@ -462,11 +492,11 @@
                         type="text"
                         v-model="item.text"
                         :placeholder="'Введите текст'"
-                        maxlength="100"
+                        :maxlength="100"
                       />
                       <input
                         type="text"
-                        maxlength="10"
+                        :maxlength="10"
                         v-model="item.price"
                         class="price-input"
                         :placeholder="'Цена'"
@@ -480,7 +510,10 @@
                     </div>
 
                     <div>
-                      <button @click="addItem(index)" class="add-button">
+                      <button
+                        @click.prevent="addItem(index)"
+                        class="add-button"
+                      >
                         + Добавить пункт
                       </button>
                     </div>
@@ -496,7 +529,9 @@
                 </div>
 
                 <div>
-                  <button @click="addCategory">Добавить категорию</button>
+                  <button @click.prevent="addCategory" class="add-button-new">
+                    Добавить категорию
+                  </button>
                 </div>
               </form>
             </div>
@@ -516,25 +551,25 @@
               <h3>Отзывы</h3>
               <div class="toggle-container">
                 <label class="switch">
-                  <input type="checkbox" v-model="sections.reviews.editable" />
+                  <input type="checkbox" v-model="sections.reviews.showBlock" />
                   <span class="slider round"></span>
                 </label>
               </div>
             </div>
-            <div :class="{ 'disabled-block': !sections.reviews.editable }">
+            <div :class="{ 'disabled-block': !sections.reviews.showBlock }">
               <form @submit.prevent="validateAndSubmit('reviews')">
                 <input-field
-                  v-for="input in sections.reviews.inputs"
-                  :key="input.id"
-                  v-bind="input"
+                  id="coachesTitle"
+                  label="Отображаемый заголовок"
+                  type="text"
+                  v-model="sections.reviews.displayedTitle"
+                  :maxlength="50"
+                  required
                   :is-submit-attempted="isSubmitAttempted"
-                  @input-section="handleInputSection"
-                  section-name="reviews"
                 ></input-field>
                 <p class="hint">
-                  Выберите отзывы для отображения со своей страницы тренера на
-                  RTTF, выбрав “Показать на персональной странице” рядом с
-                  отзывом.
+                  Выберите отзывы для отображения со страницы клуба на RTTF,
+                  выбрав “Показать на персональной странице” рядом с отзывом.
                 </p>
                 <!-- Переключатель "Показать мои тренировки с RTTF" -->
                 <div class="toggle-container mg-top-32">
@@ -565,13 +600,135 @@
 
             <form @submit.prevent="validateAndSubmit('contacts')">
               <input-field
-                v-for="input in sections.contacts.inputs"
-                :key="input.id"
-                section-name="contacts"
-                v-bind="input"
+                id="address"
+                label="Адрес"
+                type="text"
+                v-model="sections.contacts.address"
+                :maxlength="200"
+                :required="true"
                 :is-submit-attempted="isSubmitAttempted"
-                @input-section="handleInputSection"
+                error-message="Заполните адрес"
               ></input-field>
+
+              <input-field
+                id="metroStation"
+                label="Станция метро"
+                type="text"
+                v-model="sections.contacts.metroStation"
+                :maxlength="50"
+                :is-submit-attempted="isSubmitAttempted"
+              ></input-field>
+
+              <h4>Часы работы</h4>
+              <input-field
+                id="workingHoursWeekdays"
+                label="Понедельник-пятница"
+                type="text"
+                v-model="sections.contacts.workingHoursWeekdays"
+                :maxlength="30"
+                :required="true"
+                :is-submit-attempted="isSubmitAttempted"
+                error-message="Укажите время в формате 10:00-22:00"
+              ></input-field>
+
+              <input-field
+                id="workingHoursWeekend"
+                label="Суббота-воскресенье"
+                type="text"
+                v-model="sections.contacts.workingHoursWeekend"
+                :maxlength="30"
+                :required="true"
+                :is-submit-attempted="isSubmitAttempted"
+                error-message="Укажите время в формате 10:00-22:00"
+              ></input-field>
+
+              <h4>Варианты связи</h4>
+              <input-field
+                id="phone"
+                label="Телефон"
+                type="phone"
+                v-model="sections.contacts.phone"
+                :maxlength="20"
+                :required="true"
+                :is-submit-attempted="isSubmitAttempted"
+              ></input-field>
+
+              <input-field
+                id="email"
+                label="Email"
+                type="email"
+                v-model="sections.contacts.email"
+                :maxlength="50"
+                :required="true"
+                :is-submit-attempted="isSubmitAttempted"
+              ></input-field>
+
+              <input-field
+                id="whatsapp"
+                label="WhatsApp"
+                placeholder="https://wa.me/вашномертелефона"
+                type="text"
+                v-model="sections.contacts.whatsapp"
+                :maxlength="50"
+                :is-submit-attempted="isSubmitAttempted"
+              ></input-field>
+
+              <input-field
+                id="telegram"
+                label="Telegram"
+                placeholder="https://t.me/вашномертелефона"
+                type="text"
+                v-model="sections.contacts.telegram"
+                :maxlength="50"
+                :is-submit-attempted="isSubmitAttempted"
+              ></input-field>
+
+              <h4>Ссылки</h4>
+              <input-field
+                id="socialVk"
+                label="Группа ВК"
+                type="text"
+                v-model="sections.contacts.socialVk"
+                :maxlength="100"
+                :is-submit-attempted="isSubmitAttempted"
+              ></input-field>
+
+              <input-field
+                id="socialTelegram"
+                label="Telegram канал"
+                type="text"
+                v-model="sections.contacts.socialTelegram"
+                :maxlength="100"
+                :is-submit-attempted="isSubmitAttempted"
+              ></input-field>
+
+              <input-field
+                id="socialInstagram"
+                label="Instagram"
+                type="text"
+                v-model="sections.contacts.socialInstagram"
+                :maxlength="100"
+                :is-submit-attempted="isSubmitAttempted"
+              ></input-field>
+
+              <input-field
+                id="socialOdnoklassniki"
+                label="Одноклассники"
+                type="text"
+                v-model="sections.contacts.socialOdnoklassniki"
+                :maxlength="100"
+                :is-submit-attempted="isSubmitAttempted"
+              ></input-field>
+
+              <input-field
+                id="rttfURL"
+                label="Страница на RTTF"
+                type="text"
+                v-model="sections.contacts.rttfURL"
+                :maxlength="100"
+                :is-submit-attempted="isSubmitAttempted"
+              ></input-field>
+
               <div class="button-container">
                 <button type="submit" class="save-button">Сохранить</button>
               </div>

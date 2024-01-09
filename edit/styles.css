@@ -15,6 +15,10 @@ body {
   display: none;
 }
 
+h4 {
+  margin-bottom: 8px;
+}
+
 .tab {
   display: flex;
   white-space: nowrap;
@@ -156,7 +160,7 @@ body {
   flex-direction: column;
   width: 100%;
   max-width: 480px;
-  padding: 16px 16px 8px 0px;
+  padding: 16px 0px 8px 0px;
   align-items: flex-start;
   gap: 4px;
   font-size: 14px;
@@ -822,12 +826,10 @@ input:checked + .slider:before {
 }
 
 .category-container {
-  border: 1px solid #ccc;
   padding: 16px;
-  margin: 16px 0px;
-
-  border-radius: 12px;
-  background-color: #eef2f4;
+  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.17);
+  border-radius: 8px;
+  margin: 16px 0;
 }
 
 .category-header {
@@ -872,6 +874,7 @@ input:checked + .slider:before {
 
 .event-card .daystab {
   gap: 0px;
+  margin-top: 0;
 }
 
 .event-card .daystab .tablinks {

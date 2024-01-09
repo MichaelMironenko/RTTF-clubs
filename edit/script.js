@@ -5,73 +5,48 @@ const InputField = {
     id: String,
     label: String,
     type: { type: String, default: "text" },
-    value: String, // value используется с v-model
+    // value: String,
     rows: { type: Number, default: 3 },
     maxlength: Number,
     required: Boolean,
     error: Boolean,
     errorMessage: String,
-    largeTextarea: Boolean,
     isSubmitAttempted: Boolean,
     sectionName: String,
+    placeholder: String,
     modelValue: String,
   },
-  data() {
-    return {
-      userHasInput: false,
-      inputValue: this.value || "",
-    };
-  },
-  emits: ["update:modelValue", "input-section"],
-  mounted() {
-    console.log(this.props);
-  },
+
   computed: {
     charsLeft() {
-      return this.maxlength - this.inputValue.length;
-    },
-    inputClass() {
-      return this.largeTextarea ? "large-textarea-wrapper" : "";
+      return this.maxlength - this.modelValue.length;
     },
     effectiveErrorMessage() {
       return this.errorMessage || "Введите текст";
     },
     shouldShowError() {
       return (
-        this.error &&
-        (this.isSubmitAttempted || this.userHasInput) &&
-        this.inputValue === "" // Использование this.value вместо this.inputValue
+        this.required &&
+        !this.modelValue &&
+        (this.isSubmitAttempted || this.modelValue !== "")
       );
     },
   },
   methods: {
-    handleInput(event) {
-      this.userHasInput = true;
-      console.log("handleInput:", this.sectionName, this.id, this.inputValue);
-
+    updateValue(event) {
       this.$emit("update:modelValue", event.target.value);
+    },
+  },
 
-      this.$emit("input-section", {
-        sectionName: this.sectionName,
-        inputData: { id: this.id, value: this.inputValue },
-      });
-    },
-  },
-  watch: {
-    value(newValue) {
-      console.log(newValue);
-      this.inputValue = newValue;
-    },
-  },
   template: `
   <div class="input-wrapper">
       <label :for="id" :class="{ 'required-label': required }">{{ label }}</label>
       <div class="input-and-error">
-        <input v-if="type !== 'textarea'" :type="type" :id="id" :class="{ 'error-border': shouldShowError }"  v-model="inputValue" :maxlength="maxlength"
-            @input="handleInput" />
-        <textarea v-else :id="id" v-model="inputValue" :class="{ 'error-border': shouldShowError }"   :maxlength="maxlength" :rows="rows"
-            @input="handleInput"></textarea>
-        <div class="input-feedback">
+        <input v-if="type !== 'textarea'" :type="type" :placeholder="placeholder" :id="id" :class="{ 'error-border': shouldShowError }" :value="modelValue" :maxlength="maxlength"
+            @input="updateValue"/>
+        <textarea v-else :id="id" :value="modelValue" :placeholder="placeholder" :class="{ 'error-border': shouldShowError }"   :maxlength="maxlength" :rows="rows"
+            @input="updateValue"></textarea>
+        <div class="input-feedback"> 
           <div class="error-message" v-if="shouldShowError">{{ effectiveErrorMessage }}</div>
           <div class="character-count" v-if="charsLeft <= 10">{{ charsLeft }}</div>
         </div>
@@ -183,7 +158,6 @@ const PhotoUpload = {
     handleFileSelected(event) {
       const files = event.target.files;
       if (!this.singlePhoto) {
-        console.log(this.imageData.length);
         const maxImages = 20; // Максимальное количество изображений
         const currentImageCount = this.imageData.length;
         const availableSlots = maxImages - currentImageCount;
@@ -396,95 +370,26 @@ const App = {
       sections: {
         mainInfo: {
           title: "Основная информация",
-          inputs: [
-            {
-              id: "displayedTitle",
-              label: "Описание клуба (например 'Клуб настольного тенниса') ",
-              type: "text",
-              value: "",
-              maxlength: 70,
-              required: true,
-              charsLeft: 70,
-              error: false,
-              errorMessage: "Введите отображаемый заголовок",
-            },
-            {
-              id: "clubName",
-              label: "Название клуба",
-              type: "text",
-              value: "",
-              maxlength: 100,
-              required: true,
-              charsLeft: 100,
-              error: false,
-              errorMessage: "Название клуба обязательно к заполнению",
-            },
-          ],
+          displayedTitle: "Клуб настольного тенниса",
+          clubName: "",
           logo: null,
           background: null,
         },
         aboutClub: {
           title: "О клубе",
-          inputs: [
-            {
-              id: "displayedTitle",
-              label: "Заголовок",
-              type: "text",
-              value: "",
-              maxlength: 30,
-              required: true,
-              charsLeft: 30,
-              error: false,
-              errorMessage: "Введите отображаемый заголовок",
-            },
-            {
-              id: "description",
-              label: "Краткое описание",
-              type: "textarea",
-              value: "",
-              maxlength: 1000,
-              required: true,
-              largeTextarea: true,
-              charsLeft: 1000,
-              error: false,
-              errorMessage: "Введите краткое описание",
-            },
-          ],
+          displayedTitle: "О клубе",
+          description: "",
           imageData: [],
         },
         news: {
           title: "Новости и акции",
-          editable: true,
-          inputs: [
-            {
-              id: "newsTitle",
-              label: "Заголовок",
-              type: "text",
-              value: "",
-              maxlength: 50,
-              required: true,
-              charsLeft: 50,
-              error: false,
-              errorMessage: "Введите заголовок раздела",
-            },
-          ],
+          showBlock: true,
+          displayedTitle: "Новости и акции",
         },
         activities: {
           title: "Турниры и тренировки",
-          editable: true,
-          inputs: [
-            {
-              id: "activitiesTitle",
-              label: "Заголовок",
-              type: "text",
-              value: "",
-              maxlength: 50,
-              required: true,
-              charsLeft: 50,
-              error: false,
-              errorMessage: "Введите заголовок раздела",
-            },
-          ],
+          showBlock: true,
+          displayedTitle: "Турниры и тренировки",
           days: [
             "Понедельник",
             "Вторник",
@@ -635,20 +540,8 @@ const App = {
         },
         coaches: {
           title: "Тренеры клуба",
-          editable: true,
-          inputs: [
-            {
-              id: "coachesTitle",
-              label: "Заголовок",
-              type: "text",
-              value: "",
-              maxlength: 50,
-              required: true,
-              charsLeft: 50,
-              error: false,
-              errorMessage: "Введите заголовок раздела",
-            },
-          ],
+          showBlock: true,
+          displayedTitle: "Тренеры клуба",
           coachesList: [
             {
               id: "1",
@@ -690,20 +583,8 @@ const App = {
         },
         prices: {
           title: "Цены",
-          editable: true,
-          inputs: [
-            {
-              id: "pricesTitle",
-              label: "Заголовок",
-              type: "text",
-              value: "",
-              maxlength: 50,
-              required: true,
-              charsLeft: 50,
-              error: false,
-              errorMessage: "Введите заголовок раздела",
-            },
-          ],
+          showBlock: true,
+          displayedTitle: "Цены",
           menu: [
             {
               title: "Аренда стола (55 минут)",
@@ -739,164 +620,26 @@ const App = {
             },
           ],
         },
+        reviews: {
+          title: "Отзывы",
+          showBlock: true,
+          displayedTitle: "Отзывы",
+        },
         contacts: {
           title: "Контакты",
-          inputs: [
-            {
-              id: "address",
-              label: "Адрес",
-              type: "text",
-              value: "",
-              maxlength: 200,
-              required: true,
-              charsLeft: 200,
-              error: false,
-              errorMessage: "Адрес обязателен к заполнению",
-            },
-            // {
-            //   id: "metroLineColor",
-            //   label: "Цвет линии метро",
-            //   type: "text",
-            //   value: "",
-            //   maxlength: 20,
-            //   required: false,
-            //   charsLeft: 20,
-            //   error: false,
-            //   errorMessage: "",
-            // },
-            {
-              id: "metroStation",
-              label: "Станция метро",
-              type: "text",
-              value: "",
-              maxlength: 50,
-              required: false,
-              charsLeft: 50,
-              error: false,
-              errorMessage: "",
-            },
-            {
-              id: "workingHoursWeekdays",
-              label: "Рабочие часы (Пн-Пт)",
-              type: "text",
-              value: "",
-              maxlength: 30,
-              required: true,
-              charsLeft: 30,
-              error: false,
-              errorMessage: "Рабочие часы обязательны к заполнению",
-            },
-            {
-              id: "workingHoursWeekend",
-              label: "Рабочие часы (Сб-Вс)",
-              type: "text",
-              value: "",
-              maxlength: 30,
-              required: true,
-              charsLeft: 30,
-              error: false,
-              errorMessage: "Рабочие часы обязательны к заполнению",
-            },
-            {
-              id: "whatsapp",
-              label: "WhatsApp",
-              type: "text",
-              value: "",
-              maxlength: 50,
-              required: false,
-              charsLeft: 50,
-              error: false,
-              errorMessage: "",
-            },
-            {
-              id: "telegram",
-              label: "Telegram",
-              type: "text",
-              value: "",
-              maxlength: 50,
-              required: false,
-              charsLeft: 50,
-              error: false,
-              errorMessage: "",
-            },
-            {
-              id: "phone",
-              label: "Телефон",
-              type: "text",
-              value: "",
-              maxlength: 20,
-              required: true,
-              charsLeft: 20,
-              error: false,
-              errorMessage: "Телефон обязателен к заполнению",
-            },
-            {
-              id: "email",
-              label: "Email",
-              type: "text",
-              value: "",
-              maxlength: 100,
-              required: true,
-              charsLeft: 100,
-              error: false,
-              errorMessage: "Email обязателен к заполнению",
-            },
-            {
-              id: "socialVk",
-              label: "ВК",
-              type: "text",
-              value: "",
-              maxlength: 100,
-              required: false,
-              charsLeft: 100,
-              error: false,
-              errorMessage: "",
-            },
-            {
-              id: "socialTelegram",
-              label: "Telegram канал",
-              type: "text",
-              value: "",
-              maxlength: 100,
-              required: false,
-              charsLeft: 100,
-              error: false,
-              errorMessage: "",
-            },
-            {
-              id: "socialInstagram",
-              label: "Instagram",
-              type: "text",
-              value: "",
-              maxlength: 100,
-              required: false,
-              charsLeft: 100,
-              error: false,
-              errorMessage: "",
-            },
-            {
-              id: "socialOdnoklassniki",
-              label: "Одноклассники",
-              type: "text",
-              value: "",
-              maxlength: 100,
-              required: false,
-              charsLeft: 100,
-              error: false,
-              errorMessage: "",
-            },
-            {
-              id: "rttfURL",
-              label: "Страница на RTTF",
-              type: "text",
-              value: "",
-              maxlength: 100,
-              required: false,
-              charsLeft: 100,
-              error: false,
-              errorMessage: "",
-            },
-          ],
+          address: "",
+          metroStation: "",
+          workingHoursWeekdays: "",
+          workingHoursWeekend: "",
+          whatsapp: "",
+          telegram: "",
+          phone: "",
+          email: "",
+          socialVk: "",
+          socialTelegram: "",
+          socialInstagram: "",
+          socialOdnoklassniki: "",
+          rttfURL: "",
         },
       },
 
@@ -916,12 +659,29 @@ const App = {
       editingEventId: null,
       nextEventId: 0,
       tempEvents: [],
+      requiredFields: {
+        mainInfo: ["displayedTitle", "clubName"],
+        aboutClub: ["displayedTitle", "description"],
+        news: ["displayedTitle"],
+        activities: ["displayedTitle"],
+        coaches: ["displayedTitle"],
+        prices: ["displayedTitle"],
+        reviews: ["displayedTitle"],
+        contacts: [
+          "address",
+          "workingHoursWeekdays",
+          "workingHoursWeekend",
+          "phone",
+          "email",
+        ],
+      },
     };
   },
   created() {
-    // this.$on("input-section", this.handleInputSection);
     this.loadFromLocalStorage();
+    // this.loadData();
   },
+
   computed: {
     shortDays() {
       const shortNames = {
@@ -964,27 +724,26 @@ const App = {
     },
   },
   methods: {
+    async loadData() {
+      try {
+        const response = await fetch("data.json");
+        if (!response.ok) {
+          throw new Error("Ошибка при загрузке данных");
+        }
+        const data = await response.json();
+        console.log(data);
+        this.sections = data.sections;
+        this.activeTab = data.activeTab;
+        // ... загрузка других свойств, если они есть
+      } catch (error) {
+        console.error("Не удалось загрузить данные:", error);
+      }
+    },
     saveEvent(index) {
-      // Сбрасываем индекс редактирования для возвращения к режиму просмотра
       this.editingEventIndex = null;
     },
 
-    handleInput(data) {},
-    handleInputSection(event) {
-      // console.log(event);
-      const { sectionName, inputData } = event;
-
-      const section = this.sections[sectionName];
-      if (section && section.inputs) {
-        const input = section.inputs.find((i) => i.id === inputData.id);
-        if (input) {
-          input.value = inputData.value;
-        }
-      }
-    },
     updateEventData(index, key, eventPayload) {
-      // console.log("updateEventData:", index, key, eventPayload);
-
       const actualValue = eventPayload.inputData.value;
       if (index !== null && index < this.sections.activities.events.length) {
         Vue.set(this.sections.activities.events[index], key, actualValue);
@@ -1004,28 +763,22 @@ const App = {
         console.error(`Section with id ${data.sectionId} does not exist.`);
         return;
       }
-      console.log(data);
-      // Проверка на конкретный sectionId и соответствующие поля
+
       if (data.sectionId === "mainInfo") {
-        console.log("maininfo");
         if (data.label === "Логотип") {
-          console.log("логотип");
-          // Сохраняем логотип
           this.sections.mainInfo.logo = data.imageData;
         } else if (data.label === "Фоновое фото для главного блока") {
-          // Сохраняем фоновое изображение
           this.sections.mainInfo.background = data.imageData;
         } else {
-          // Обработка для других изображений в разделе 'mainInfo'
           this.sections[data.sectionId].imageData = data.imageData;
         }
       } else {
-        // Стандартная обработка для других разделов
         this.sections[data.sectionId].imageData = data.imageData;
       }
     },
     loadFromLocalStorage() {
       const storedData = localStorage.getItem("sections");
+
       if (storedData) {
         this.sections = JSON.parse(storedData);
       }
@@ -1042,13 +795,11 @@ const App = {
       console.log("Saving sections to localStorage", this.sections);
 
       localStorage.setItem("sections", JSON.stringify(this.sections));
-      console.log("kek");
+
       this.saveSuccessful = true;
-      console.log(this.saveSuccessful);
 
       setTimeout(() => {
         this.saveSuccessful = false;
-        console.log(this.saveSuccessful);
       }, 2000);
     },
     addCategory() {
@@ -1096,11 +847,20 @@ const App = {
     },
 
     removeCoach(coachId) {
-      const index = this.sections.coaches.coachesList.findIndex(
-        (coach) => coach.id === coachId
+      const coach = this.sections.coaches.coachesList.find(
+        (c) => c.id === coachId
       );
-      if (index !== -1) {
-        this.sections.coaches.coachesList.splice(index, 1);
+      if (coach) {
+        coach.isDeleted = true;
+      }
+    },
+
+    restoreCoach(coachId) {
+      const coach = this.sections.coaches.coachesList.find(
+        (c) => c.id === coachId
+      );
+      if (coach) {
+        coach.isDeleted = false;
       }
     },
 
@@ -1149,26 +909,18 @@ const App = {
     validateAndSubmit(sectionId) {
       this.isSubmitAttempted = true;
       const section = this.sections[sectionId];
-      console.log("validating");
-      if (section.editable === undefined || section.editable) {
+      const requiredFields = this.requiredFields[sectionId] || [];
+
+      if (section.showBlock === undefined || section.showBlock) {
+        console.log("start validating");
         let isValid = true;
         let firstErrorElementId = null;
 
-        // Валидация полей ввода
-        if (section.inputs) {
-          section.inputs.forEach((input) => {
-            if (input.required && !input.value) {
-              input.error = true;
-              isValid = false;
-              console.log(input.value, "empty?");
-              if (!firstErrorElementId) {
-                firstErrorElementId = input.id;
-              }
-            } else {
-              input.error = false;
-            }
-          });
-        }
+        requiredFields.forEach((fieldId) => {
+          if (!section[fieldId]) {
+            isValid = false;
+          }
+        });
 
         if (sectionId === "prices" && section.menu) {
           section.menu = section.menu.filter((category) => !category.deleted);
@@ -1186,6 +938,10 @@ const App = {
                 coach.price
               );
             });
+          this.sections.coaches.coachesList =
+            this.sections.coaches.coachesList.filter(
+              (coach) => !coach.isDeleted
+            );
         }
 
         if (isValid) {

@@ -20,90 +20,30 @@
 
   <body>
     <div id="app" v-cloak>
-      <!-- Верхнее меню -->
-      <nav class="navbar">
-        <div class="logo-container">
-          <img
-            v-if="contacts.logo"
-            :src="contacts.logo"
-            :alt="`${contacts.clubName}`"
-            class="logo-image"
-          />
-          <div v-if="!contacts.logo" class="logo-text">
-            <span>{{ contacts.clubName.toUpperCase() }}</span>
+      <div v-if="!isLoading" style="margin-top: 60px">
+        <!-- Верхнее меню -->
+        <nav class="navbar">
+          <div class="logo-container">
+            <img
+              v-if="mainInfo.logo"
+              :src="mainInfo.logo"
+              :alt="`${mainInfo.clubName}`"
+              class="logo-image"
+            />
+            <div v-if="!mainInfo.logo" class="logo-text">
+              <span>{{ mainInfo.clubName.toUpperCase() }}</span>
+            </div>
           </div>
-        </div>
-        <ul class="nav-links" :class="{ 'active': isNavOpen }">
-          <li>
-            <a href="#about" @click.prevent="handleNavLinkClick('#about')"
-              >О клубе</a
-            >
-          </li>
-          <li>
-            <a
-              href="#activities"
-              @click.prevent="handleNavLinkClick('#activities')"
-              >Турниры и тренировки</a
-            >
-          </li>
-          <li>
-            <a href="#prices" @click.prevent="handleNavLinkClick('#prices')"
-              >Цены</a
-            >
-          </li>
-          <li>
-            <a href="#trainers" @click.prevent="handleNavLinkClick('#trainers')"
-              >Тренеры</a
-            >
-          </li>
-          <li>
-            <a href="#reviews" @click.prevent="handleNavLinkClick('#reviews')"
-              >Отзывы</a
-            >
-          </li>
-          <li>
-            <a href="#contacts" @click.prevent="handleNavLinkClick('#contacts')"
-              >Контакты</a
-            >
-          </li>
-        </ul>
+          <ul class="nav-links" :class="{ 'active': isNavOpen }">
+            <li v-for="link in navLinks" :key="link.id">
+              <a
+                :href="link.href"
+                @click.prevent="handleNavLinkClick(link.href)"
+                >{{ link.text }}</a
+              >
+            </li>
+          </ul>
 
-        <div class="nav-phone">
-          <a
-            v-if="contacts.whatsapp"
-            :href="contacts.whatsapp"
-            target="_blank"
-            class="nav-icon"
-          >
-            <img src="images/logo-whatsapp.svg" alt="WhatsApp" />
-          </a>
-          <a
-            v-if="contacts.telegram"
-            :href="contacts.telegram"
-            target="_blank"
-            class="nav-icon"
-          >
-            <img src="images/logo-telegram.svg" alt="Telegram" />
-          </a>
-          <a v-if="contacts.phone" :href="`tel:${contacts.phone}`"
-            >{{ contacts.phone }}</a
-          >
-        </div>
-        <div class="nav-hamburger" @click="toggleNav">☰</div>
-        <div
-          class="nav-close"
-          :class="{ 'active': isNavOpen }"
-          @click="closeNav"
-        >
-          ✕
-        </div>
-      </nav>
-
-      <div class="bg">
-        <img :src="mainSection.image" class="main-bg" alt="" />
-        <div class="content">
-          <h1>{{ mainSection.heading }}</h1>
-          <h3>{{ mainSection.subheading }}</h3>
           <div class="nav-phone">
             <a
               v-if="contacts.whatsapp"
@@ -121,545 +61,609 @@
             >
               <img src="images/logo-telegram.svg" alt="Telegram" />
             </a>
-            <a v-if="contacts.phone" :href="`tel:${contacts.phoneNumber}`"
+            <a v-if="contacts.phone" :href="`tel:${contacts.phone}`"
               >{{ contacts.phone }}</a
             >
           </div>
-        </div>
-      </div>
+          <div class="nav-hamburger" @click="toggleNav">☰</div>
+          <div
+            class="nav-close"
+            :class="{ 'active': isNavOpen }"
+            @click="closeNav"
+          >
+            ✕
+          </div>
+        </nav>
 
-      <div id="about" class="about-block">
-        <div class="text-section">
-          <h2>{{ aboutClub.heading }}</h2>
-          <p>{{ aboutClub.text }}</p>
-          <ul>
-            <li
-              v-if="aboutClub.features"
-              v-for="feature in aboutClub.features"
-              :key="feature"
-            >
-              {{ feature }}
-            </li>
-          </ul>
+        <div class="bg">
+          <img :src="mainInfo.background" class="main-bg" alt="" />
+          <div class="content">
+            <h1>
+              <p style="font-size: 32px; line-height: 1.2; margin-bottom: 16px">
+                {{ mainInfo.displayedTitle }}
+              </p>
+              <p
+                style="
+                  font-weight: 800;
+                  color: rgb(52, 153, 60);
+                  line-height: 1;
+                "
+              >
+                {{ mainInfo.clubName }}
+              </p>
+            </h1>
+            <h3>{{ mainInfo.address }}</h3>
+            <div class="nav-phone">
+              <a
+                v-if="contacts.whatsapp"
+                :href="contacts.whatsapp"
+                target="_blank"
+                class="nav-icon"
+              >
+                <img src="images/logo-whatsapp.svg" alt="WhatsApp" />
+              </a>
+              <a
+                v-if="contacts.telegram"
+                :href="contacts.telegram"
+                target="_blank"
+                class="nav-icon"
+              >
+                <img src="images/logo-telegram.svg" alt="Telegram" />
+              </a>
+              <a v-if="contacts.phone" :href="`tel:${contacts.phone}`"
+                >{{ contacts.phone }}</a
+              >
+            </div>
+          </div>
         </div>
-        <div class="carousel" ref="carousel">
-          <div class="carousel-aspect-ratio">
+
+        <div id="about" class="about-block section-bg">
+          <div class="text-section">
+            <h2>{{ aboutClub.displayedTitle }}</h2>
+            <p>{{ aboutClub.description }}</p>
+          </div>
+          <div class="carousel" ref="carousel">
+            <div class="carousel-aspect-ratio">
+              <div
+                class="carousel-inner"
+                ref="carouselInner"
+                @touchstart="handleTouchStart"
+                @touchmove="handleTouchMove"
+                @touchend="handleTouchEnd"
+              >
+                <div
+                  class="carousel-item"
+                  v-for="(image, index) in aboutClub.imageData"
+                  :key="index"
+                >
+                  <img :src="image" :alt="'Image ' + (index + 1)" />
+                </div>
+              </div>
+              <button
+                class="carousel-control-prev"
+                @click="prevSlide"
+                v-if="currentSlide > 0"
+              >
+                <img class="carousel-arrow" src="images/arrow.svg" />
+              </button>
+              <button
+                class="carousel-control-next"
+                @click="nextSlide"
+                v-if="currentSlide < aboutClub.imageData.length - 1"
+              >
+                <img class="carousel-arrow rotate" src="images/arrow.svg" />
+              </button>
+            </div>
             <div
-              class="carousel-inner"
-              ref="carouselInner"
-              @touchstart="handleTouchStart"
-              @touchmove="handleTouchMove"
-              @touchend="handleTouchEnd"
+              class="carousel-indicators"
+              v-if="aboutClub.imageData.length > 1"
+            >
+              <span
+                v-for="indicator in displayIndicators"
+                :key="indicator"
+                :class="{ 'active': currentSlide === indicator }"
+                class="indicator-dot"
+              ></span>
+            </div>
+          </div>
+        </div>
+
+        <div id="news" v-if="news.showBlock" class="news-block section-bg">
+          <h2 class="title-container">Новости и акции</h2>
+          <!-- <div class="news-container">
+            <div
+              class="news-card"
+              v-for="item in news"
+              :key="item.id"
+              @click="openModal(item)"
             >
               <div
-                class="carousel-item"
-                v-for="(image, index) in aboutClub.galleryImages"
+                v-if="item.image"
+                class="news-card__image"
+                loading="lazy"
+                :style="{ backgroundImage: 'url(' + item.image + ')' }"
+              ></div>
+              <div class="news-card__content">
+                <div class="news-card__date">{{ formatDate(item.date) }}</div>
+                <div class="news-card__title">{{ item.title }}</div>
+                <div
+                  class="news-card__text"
+                  :style="`display: -webkit-box;
+  -webkit-box-orient: vertical; -webkit-line-clamp: ${item.image ? '4' : '14'}`"
+                >
+                  {{ item.text }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal" v-if="selectedNews" @click.self="closeModal()">
+            <div class="modal-content-wrapper">
+              <button class="modal-close" @click="closeModal()">Закрыть</button>
+              <div class="modal-content">
+                <div class="modal-news-content">
+                  <img
+                    v-if="selectedNews.image"
+                    :src="selectedNews.image"
+                    alt="News Image"
+                    class="modal-image"
+                  />
+                  <span class="modal-date"
+                    >{{ formatDate(selectedNews.date) }}</span
+                  >
+                  <h3 class="modal-title">{{ selectedNews.title }}</h3>
+                  <div
+                    class="modal-text"
+                    v-html="formatText(selectedNews.text)"
+                  ></div>
+                  <a href="{{ selectedNews.link}}">Обсуждение на RTTF.ru</a>
+                </div>
+              </div>
+            </div>
+          </div> -->
+        </div>
+
+        <div
+          id="activities"
+          v-if="activities.showBlock"
+          class="schedule-block section-bg"
+        >
+          <h2 class="title-container">Турниры и тренировки</h2>
+          <p>
+            Регистрация на актуальные турниры и тренировки -
+            <a href="https://rttf.ru/lucenter">на странице клуба</a> на RTTF.ru
+          </p>
+          <!-- Мобильная версия -->
+          <div class="day-selector">
+            <button
+              v-for="day in activities.days"
+              :key="day"
+              @click="selectDay(day)"
+              :class="{ 'selected-day': day === selectedDay }"
+            >
+              {{ formatDay(day) }}
+            </button>
+          </div>
+
+          <div class="day-events">
+            <div
+              v-for="event in eventsForSelectedDay"
+              :key="event.name"
+              class="event-detail"
+              :class="[event.type]"
+            >
+              <div class="event-time">
+                {{ event.startTime }} - {{ event.endTime }}
+              </div>
+              <div class="event-name">{{ event.name }}</div>
+              <div class="event-more-details">{{ event.moreDetails }}</div>
+            </div>
+            <div
+              v-if="eventsForSelectedDay.length == 0"
+              class="no-events-message"
+            >
+              Нет событий в этот день
+            </div>
+          </div>
+
+          <div class="schedule-container">
+            <div class="schedule">
+              <div class="header-row">
+                <div class="time-header"></div>
+                <div class="day" v-for="day in activities.days" :key="day">
+                  {{ day }}
+                </div>
+              </div>
+              <div
+                class="event-row"
+                v-for="(timeslot, index) in filteredEvents"
                 :key="index"
               >
-                <img :src="image" :alt="'Image ' + (index + 1)" />
-              </div>
-            </div>
-            <button
-              class="carousel-control-prev"
-              @click="prevSlide"
-              v-if="currentSlide > 0"
-            >
-              <img class="carousel-arrow" src="images/arrow.svg" />
-            </button>
-            <button
-              class="carousel-control-next"
-              @click="nextSlide"
-              v-if="currentSlide < aboutClub.galleryImages.length - 1"
-            >
-              <img class="carousel-arrow rotate" src="images/arrow.svg" />
-            </button>
-          </div>
-          <div
-            class="carousel-indicators"
-            v-if="aboutClub.galleryImages.length > 1"
-          >
-            <span
-              v-for="indicator in displayIndicators"
-              :key="indicator"
-              :class="{ 'active': currentSlide === indicator }"
-              class="indicator-dot"
-            ></span>
-          </div>
-        </div>
-      </div>
-
-      <div id="news" class="news-block">
-        <h2 class="title-container">Новости и акции</h2>
-        <div class="news-container">
-          <div
-            class="news-card"
-            v-for="item in news"
-            :key="item.id"
-            @click="openModal(item)"
-          >
-            <div
-              v-if="item.image"
-              class="news-card__image"
-              loading="lazy"
-              :style="{ backgroundImage: 'url(' + item.image + ')' }"
-            ></div>
-            <div class="news-card__content">
-              <div class="news-card__date">{{ formatDate(item.date) }}</div>
-              <div class="news-card__title">{{ item.title }}</div>
-              <div
-                class="news-card__text"
-                :style="`display: -webkit-box;
-  -webkit-box-orient: vertical; -webkit-line-clamp: ${item.image ? '4' : '14'}`"
-              >
-                {{ item.text }}
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="modal" v-if="selectedNews" @click.self="closeModal()">
-          <div class="modal-content-wrapper">
-            <button class="modal-close" @click="closeModal()">Закрыть</button>
-            <div class="modal-content">
-              <!-- Содержимое модального окна -->
-              <div class="modal-news-content">
-                <!-- Содержимое новостей -->
-                <img
-                  v-if="selectedNews.image"
-                  :src="selectedNews.image"
-                  alt="News Image"
-                  class="modal-image"
-                />
-                <span class="modal-date"
-                  >{{ formatDate(selectedNews.date) }}</span
-                >
-                <h3 class="modal-title">{{ selectedNews.title }}</h3>
-                <div
-                  class="modal-text"
-                  v-html="formatText(selectedNews.text)"
-                ></div>
-                <a href="{{ selectedNews.link}}">Обсуждение на RTTF.ru</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div id="activities" class="schedule-block">
-        <h2 class="title-container">Турниры и тренировки</h2>
-        <p>
-          Регистрация на актуальные турниры и тренировки -
-          <a href="https://rttf.ru/lucenter">на странице клуба</a> на RTTF.ru
-        </p>
-        <!-- Мобильная версия -->
-        <div class="day-selector">
-          <button
-            v-for="day in days"
-            :key="day"
-            @click="selectDay(day)"
-            :class="{ 'selected-day': day === selectedDay }"
-          >
-            {{ formatDay(day) }}
-          </button>
-        </div>
-
-        <div class="day-events">
-          <div
-            v-for="event in eventsForSelectedDay"
-            :key="event.name"
-            class="event-detail"
-            :class="[event.type]"
-          >
-            <div class="event-time">
-              {{ event.startTime }} - {{ event.endTime }}
-            </div>
-            <div class="event-name">{{ event.name }}</div>
-            <div class="event-more-details">{{ event.moreDetails }}</div>
-          </div>
-          <div
-            v-if="eventsForSelectedDay.length == 0"
-            class="no-events-message"
-          >
-            Нет событий в этот день
-          </div>
-        </div>
-
-        <div class="schedule-container">
-          <div class="schedule">
-            <div class="header-row">
-              <div class="time-header"></div>
-              <div class="day" v-for="day in days" :key="day">{{ day }}</div>
-            </div>
-            <div
-              class="event-row"
-              v-for="(timeslot, index) in filteredEvents"
-              :key="index"
-            >
-              <div class="time">{{ timeslot.time }}</div>
-              <div class="event" v-for="day in days" :key="day">
-                <div
-                  class="event-detail"
-                  v-if="timeslot.events[day]"
-                  :class="[timeslot.events[day].type]"
-                >
-                  <div class="event-time">
-                    {{ timeslot.events[day].startTime }} - {{
-                    timeslot.events[day].endTime }}
-                  </div>
-                  <div class="event-name">{{ timeslot.events[day].name }}</div>
-                  <div class="event-more-details">
-                    {{ timeslot.events[day].moreDetails }}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div id="trainers" class="coaches-block">
-        <h2 class="title-container">Тренеры клуба</h2>
-        <div class="coaches-container">
-          <div class="coach-card" v-for="coach in coaches" :key="coach.id">
-            <div
-              class="coach-card__image"
-              loading="lazy"
-              :style="{ backgroundImage: 'url(' + coach.photo + ')' }"
-            ></div>
-            <div class="coach-card__content">
-              <div class="coach-card__name">{{ coach.name }}</div>
-              <div class="coach-card__rating">
-                <img
-                  v-for="index in 5"
-                  :src="getStarImage(coach.rating, index)"
-                  alt="Rating Star"
-                  class="rating-star"
-                  :key="`star-${coach.id}-${index}`"
-                />
-                <span class="coach-rating-value">{{ coach.rating }}</span>
-                <div class="coach-reviews">
-                  <img
-                    src="images/comments-icon.svg"
-                    alt="Reviews"
-                    class="reviews-icon"
-                  />
-                  <span class="coach-reviews-count"
-                    >{{ coach.reviewsCount }}</span
+                <div class="time">{{ timeslot.time }}</div>
+                <div class="event" v-for="day in activities.days" :key="day">
+                  <div
+                    class="event-detail"
+                    v-if="timeslot.events[day]"
+                    :class="[timeslot.events[day].type]"
                   >
-                </div>
-              </div>
-
-              <div class="coach-card__info">{{ coach.info }}</div>
-              <div class="coach-card__experience">
-                <span>Игровой стаж</span>
-                <span
-                  >{{ coach.playingExperience }} {{
-                  getYearsWord(coach.playingExperience) }}</span
-                >
-              </div>
-              <div class="coach-card__coaching-experience">
-                <span>Тренерский стаж</span>
-                <span
-                  >{{ coach.coachingExperience }} {{
-                  getYearsWord(coach.coachingExperience) }}</span
-                >
-              </div>
-              <div class="coach-card__price">
-                <span>Цена за час</span> <span>от {{ coach.price }} ₽</span>
-              </div>
-              <a :href="coach.profileLink" class="coach-card__profile-link"
-                ><img
-                  src="images/rttf-birch.svg"
-                  alt="Профиль тренера"
-                  class="reviews-icon"
-                />
-                Профиль тренера на RTTF</a
-              >
-              <div class="signup-button" @click="openCoachModal(coach)">
-                Записаться на тренировку
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div
-        class="modal"
-        v-if="isContactFormVisible"
-        @click.self="closeCoachModal()"
-      >
-        <div class="contact-form-container">
-          <div style="display: flex; justify-content: space-between">
-            <h3 class="no-top-padding">Оставьте заявку на тренировку</h3>
-            <button class="modal-close" @click="closeCoachModal()">
-              Закрыть
-            </button>
-          </div>
-          <p>Тренер <strong>{{selectedCoachName}}</strong></p>
-
-          <form
-            id="contact-form"
-            action="your-server-side-script.php"
-            method="POST"
-            class="contact-form-fields"
-          >
-            <div class="input-group">
-              <label for="name">Имя</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                placeholder="Иван Иванов"
-                required
-                autocomplete="name"
-                oninvalid="this.setCustomValidity('Это поле необходимо заполнить')"
-                oninput="this.setCustomValidity('')"
-              />
-              <span class="error-message">Это поле необходимо заполнить</span>
-            </div>
-
-            <div class="input-group phone">
-              <label for="phone">Телефон</label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                placeholder="+7..."
-                required
-              />
-              <span class="error-message">Введите номер телефона</span>
-            </div>
-            <div class="input-group email">
-              <label for="email">E-mail</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                placeholder="ivan@ivanov.ru"
-                required
-              />
-              <span class="error-message">Введите действительный email</span>
-            </div>
-
-            <div class="input-group">
-              <label for="message">Сообщение</label>
-              <textarea
-                id="message"
-                name="message"
-                placeholder="Напишите когда вы бы хотели тренироваться"
-                required
-                autocomplete="off"
-                oninvalid="this.setCustomValidity('Напишите хоть немного')"
-                oninput="this.setCustomValidity('')"
-              ></textarea>
-              <span class="error-message">Введите ваше сообщение</span>
-            </div>
-            <button class="signup-button" type="submit">Записаться</button>
-          </form>
-        </div>
-      </div>
-
-      <div id="prices" class="pricing-block">
-        <div class="title-container">
-          <h2>{{ prices.title }}</h2>
-        </div>
-        <div
-          v-for="(price, index) in prices.menu"
-          :key="index"
-          class="pricing-block-width"
-        >
-          <h3>{{ price.title }}</h3>
-          <ul>
-            <li v-for="(item, index) in price.items" :key="index">
-              <span>{{ item.text }}</span>
-              <span>{{ item.price }}</span>
-            </li>
-          </ul>
-        </div>
-        <p>
-          Бронируйте стол по телефону
-          <a v-if="contacts.phone" :href="`tel:${contacts.phone}`"
-            >{{ contacts.phone }}</a
-          >
-          , через
-          <a
-            v-if="contacts.whatsapp"
-            :href="contacts.whatsapp"
-            target="_blank"
-            class="nav-icon"
-          >
-            Телеграм </a
-          >или
-          <a
-            v-if="contacts.telegram"
-            :href="contacts.telegram"
-            target="_blank"
-            class="nav-icon"
-          >
-            WhatsApp
-          </a>
-        </p>
-      </div>
-
-      <div id="reviews" class="reviews-block">
-        <div class="title-container">
-          <h2>{{ reviews.title }}</h2>
-          <div class="average-rating">
-            <span>Средний рейтинг клуба</span>
-            <div class="review-rating">
-              <img
-                v-for="index in 5"
-                :src="getStarImage(reviews.averageRating, index)"
-                alt="Rating Star"
-                class="average-rating-icon"
-                :key="`average-star-${index}`"
-              />
-            </div>
-            <span>{{ reviews.averageRating }}</span>
-          </div>
-          <!-- <a href="https://rttf.ru/reviews">Посмотреть все отзывы на RTTF.ru</a> -->
-        </div>
-        <div class="reviews-container">
-          <div
-            class="review-card"
-            v-for="(review, index) in reviews.reviewData"
-            :key="review.name"
-          >
-            <div class="review-header">
-              <div class="review-avatar-wrapper">
-                <img
-                  class="review-avatar"
-                  :src="review.avatar"
-                  alt="Аватар пользователя"
-                />
-              </div>
-              <div class="reviewer-info">
-                <div class="reviewer-name-and-rating">
-                  <span class="reviewer-name">{{ review.name }}</span>
-                  <div class="player-rating">
-                    <img
-                      src="images/white-star.svg"
-                      alt="Rating Star"
-                      class="player-rating-icon"
-                    />
-                    <span class="rating-number">{{ review.gameRating }}</span>
+                    <div class="event-time">
+                      {{ timeslot.events[day].startTime }} - {{
+                      timeslot.events[day].endTime }}
+                    </div>
+                    <div class="event-name">
+                      {{ timeslot.events[day].name }}
+                    </div>
+                    <div class="event-more-details">
+                      {{ timeslot.events[day].moreDetails }}
+                    </div>
                   </div>
                 </div>
-                <div class="review-rating">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          id="coaches"
+          v-if="coaches.showBlock"
+          class="coaches-block section-bg"
+        >
+          <h2 class="title-container">Тренеры клуба</h2>
+          <div class="coaches-container">
+            <div
+              class="coach-card"
+              v-for="coach in coaches.coachesList"
+              :key="coach.id"
+            >
+              <div
+                class="coach-card__image"
+                loading="lazy"
+                :style="{ backgroundImage: 'url(' + coach.photo + ')' }"
+              ></div>
+              <div class="coach-card__content">
+                <div class="coach-card__name">{{ coach.name }}</div>
+                <div class="coach-card__rating">
                   <img
                     v-for="index in 5"
-                    :src="getStarImage(review.rating, index)"
+                    :src="getStarImage(coach.rating, index)"
                     alt="Rating Star"
-                    class="player-rating-icon"
-                    :key="`star-${review.name}-${index}`"
+                    class="rating-star"
+                    :key="`star-${coach.id}-${index}`"
                   />
+                  <span class="coach-rating-value">{{ coach.rating }}</span>
+                  <div class="coach-reviews">
+                    <img
+                      src="images/comments-icon.svg"
+                      alt="Reviews"
+                      class="reviews-icon"
+                    />
+                    <span class="coach-reviews-count"
+                      >{{ coach.reviewsCount }}</span
+                    >
+                  </div>
                 </div>
-                <div class="review-date">{{ review.date }}</div>
+
+                <div class="coach-card__info">{{ coach.info }}</div>
+                <div class="coach-card__experience">
+                  <span>Игровой стаж</span>
+                  <span
+                    >{{ calculateExperience(coach.playingExperience) }} {{
+                    getYearsWord(calculateExperience(coach.playingExperience))
+                    }}</span
+                  >
+                </div>
+                <div class="coach-card__coaching-experience">
+                  <span>Тренерский стаж</span>
+                  <span
+                    >{{ calculateExperience(coach.coachingExperience) }} {{
+                    getYearsWord(calculateExperience(coach.coachingExperience))
+                    }}</span
+                  >
+                </div>
+                <div class="coach-card__price">
+                  <span>Цена за час</span> <span>от {{ coach.price }} ₽</span>
+                </div>
+                <a :href="coach.profileLink" class="coach-card__profile-link"
+                  ><img
+                    src="images/rttf-birch.svg"
+                    alt="Профиль тренера"
+                    class="reviews-icon"
+                  />
+                  Профиль тренера на RTTF</a
+                >
+                <div class="signup-button" @click="openCoachModal(coach)">
+                  Записаться на тренировку
+                </div>
               </div>
-            </div>
-            <div
-              class="review-comment"
-              :class="{ expanded: expandedComment === index, 'cursor-pointer': isCommentLong(review.comment) }"
-              @click="isCommentLong(review.comment) ? toggleComment(index) : null"
-            >
-              {{ review.comment }}
-              <span
-                v-if="isCommentLong(review.comment) && expandedComment !== index"
-                >Раскрыть комментарий</span
-              >
             </div>
           </div>
         </div>
-      </div>
 
-      <div id="contacts" class="contact-section">
-        <div class="contact-info">
-          <h2>{{ contacts.title }}</h2>
+        <div
+          class="modal"
+          v-if="isContactFormVisible"
+          @click.self="closeCoachModal()"
+        >
+          <div class="contact-form-container">
+            <div style="display: flex; justify-content: space-between">
+              <h3 class="no-top-padding">Оставьте заявку на тренировку</h3>
+              <button class="modal-close" @click="closeCoachModal()">
+                Закрыть
+              </button>
+            </div>
+            <p>Тренер <strong>{{selectedCoachName}}</strong></p>
 
-          <h3>{{ contacts.clubName }}</h3>
-          <p class="address">{{ contacts.location.address }}</p>
-          <div class="metro-info">
-            <span
-              class="metro-line"
-              :style="{ backgroundColor: contacts.location.metroLineColor }"
-            ></span>
-            <span class="metro-station"
-              >{{ contacts.location.metroStation }}</span
+            <form
+              id="contact-form"
+              action="your-server-side-script.php"
+              method="POST"
+              class="contact-form-fields"
             >
-          </div>
+              <div class="input-group">
+                <label for="name">Имя</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  placeholder="Иван Иванов"
+                  required
+                  autocomplete="name"
+                  oninvalid="this.setCustomValidity('Это поле необходимо заполнить')"
+                  oninput="this.setCustomValidity('')"
+                />
+                <span class="error-message">Это поле необходимо заполнить</span>
+              </div>
 
-          <div
-            v-for="hours in contacts.workingHours"
-            :key="hours.title"
-            class="working-hours"
-          >
-            <span class="hours-title">{{ hours.title }}</span>
-            <span class="hours-text">{{ hours.hours }}</span>
+              <div class="input-group phone">
+                <label for="phone">Телефон</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  placeholder="+7..."
+                  required
+                />
+                <span class="error-message">Введите номер телефона</span>
+              </div>
+              <div class="input-group email">
+                <label for="email">E-mail</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="ivan@ivanov.ru"
+                  required
+                />
+                <span class="error-message">Введите действительный email</span>
+              </div>
+
+              <div class="input-group">
+                <label for="message">Сообщение</label>
+                <textarea
+                  id="message"
+                  name="message"
+                  placeholder="Напишите когда вы бы хотели тренироваться"
+                  required
+                  autocomplete="off"
+                  oninvalid="this.setCustomValidity('Напишите хоть немного')"
+                  oninput="this.setCustomValidity('')"
+                ></textarea>
+                <span class="error-message">Введите ваше сообщение</span>
+              </div>
+              <button class="signup-button" type="submit">Записаться</button>
+            </form>
           </div>
-          <div class="nav-phone margin-top">
-            <a v-if="contacts.phone" :href="`tel:${contacts.phoneNumber}`"
+        </div>
+
+        <div id="prices" class="pricing-block section-bg">
+          <div class="title-container">
+            <h2>{{ prices.title }}</h2>
+          </div>
+          <div
+            v-for="(price, index) in prices.menu"
+            :key="index"
+            class="pricing-block-width"
+          >
+            <h3>{{ price.title }}</h3>
+            <ul>
+              <li v-for="(item, index) in price.items" :key="index">
+                <span>{{ item.text }}</span>
+                <span>{{ item.price }}</span>
+              </li>
+            </ul>
+          </div>
+          <p>
+            Бронируйте стол по телефону
+            <a v-if="contacts.phone" :href="`tel:${contacts.phone}`"
               >{{ contacts.phone }}</a
             >
+            <span v-if="contacts.whatsapp">, </span>
             <a
               v-if="contacts.whatsapp"
               :href="contacts.whatsapp"
               target="_blank"
               class="nav-icon"
             >
-              <img src="images/logo-whatsapp.svg" alt="WhatsApp" />
-            </a>
+              Телеграм</a
+            >
             <a
               v-if="contacts.telegram"
               :href="contacts.telegram"
               target="_blank"
               class="nav-icon"
             >
-              <img src="images/logo-telegram.svg" alt="Telegram" />
+              WhatsApp
             </a>
-          </div>
-          <a
-            v-if="contacts.email"
-            :href="`mailto:${contacts.email}`"
-            class="email"
-            >{{ contacts.email }}</a
-          >
-          <div class="social-links">
-            <a :href="contacts.social.vk" class="social-link vk"></a>
-            <a
-              :href="contacts.social.telegram"
-              class="social-link telegram"
-            ></a>
-            <a
-              :href="contacts.social.instagram"
-              class="social-link instagram"
-            ></a>
-            <a
-              :href="contacts.social.odnoklassniki"
-              class="social-link odnoklassniki"
-            ></a>
-          </div>
-          <a :href="contacts.rttfURL" class="rttf-url"></a>
+          </p>
         </div>
-        <div class="yandex-map" id="yandex-map"></div>
-      </div>
-      <footer class="site-footer">
-        <div class="footer-content">
-          <a href="https://rttf.ru"
-            ><img
-              src="images/rttf-logo.png"
-              alt="RTTF Logo"
-              class="footer-logo"
-            />
-          </a>
-          <div class="footer-text">
-            Клуб настольного тенниса {{ contacts.clubName }} © 2023
-          </div>
-        </div>
-      </footer>
 
+        <div id="reviews" class="reviews-block section-bg">
+          <div class="title-container">
+            <h2>{{ reviews.title }}</h2>
+            <div class="average-rating">
+              <span>Средний рейтинг клуба</span>
+              <div class="review-rating">
+                <img
+                  v-for="index in 5"
+                  :src="getStarImage(reviews.averageRating, index)"
+                  alt="Rating Star"
+                  class="average-rating-icon"
+                  :key="`average-star-${index}`"
+                />
+              </div>
+              <span>{{ reviews.averageRating }}</span>
+            </div>
+            <!-- <a href="https://rttf.ru/reviews">Посмотреть все отзывы на RTTF.ru</a> -->
+          </div>
+          <div class="reviews-container">
+            <div
+              class="review-card"
+              v-for="(review, index) in reviews.reviewData"
+              :key="review.name"
+            >
+              <div class="review-header">
+                <div class="review-avatar-wrapper">
+                  <img
+                    class="review-avatar"
+                    :src="review.avatar"
+                    alt="Аватар пользователя"
+                  />
+                </div>
+                <div class="reviewer-info">
+                  <div class="reviewer-name-and-rating">
+                    <span class="reviewer-name">{{ review.name }}</span>
+                    <div class="player-rating">
+                      <img
+                        src="images/white-star.svg"
+                        alt="Rating Star"
+                        class="player-rating-icon"
+                      />
+                      <span class="rating-number">{{ review.gameRating }}</span>
+                    </div>
+                  </div>
+                  <div class="review-rating">
+                    <img
+                      v-for="index in 5"
+                      :src="getStarImage(review.rating, index)"
+                      alt="Rating Star"
+                      class="player-rating-icon"
+                      :key="`star-${review.name}-${index}`"
+                    />
+                  </div>
+                  <div class="review-date">{{ review.date }}</div>
+                </div>
+              </div>
+              <div
+                class="review-comment"
+                :class="{ expanded: expandedComment === index, 'cursor-pointer': isCommentLong(review.comment) }"
+                @click="isCommentLong(review.comment) ? toggleComment(index) : null"
+              >
+                {{ review.comment }}
+                <span
+                  v-if="isCommentLong(review.comment) && expandedComment !== index"
+                  >Раскрыть комментарий</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="contacts" class="contact-section section-bg">
+          <div class="contact-info">
+            <h2>{{ contacts.title }}</h2>
+
+            <h3>{{ mainInfo.clubName }}</h3>
+            <p class="address">{{ contacts.address }}</p>
+            <div class="metro-info">
+              <!-- <span
+              class="metro-line"
+              :style="{ backgroundColor: contacts.metroLineColor }"
+            ></span> -->
+              <span class="metro-station">{{ contacts.metroStation }}</span>
+            </div>
+
+            <div class="working-hours">
+              <span class="hours-title">Пн-Пт: </span>
+              <span class="hours-text"
+                >{{ contacts.workingHoursWeekdays }}</span
+              >
+            </div>
+            <div class="working-hours">
+              <span class="hours-title">Сб-Вс: </span>
+              <span class="hours-text">{{ contacts.workingHoursWeekend }}</span>
+            </div>
+            <div class="nav-phone margin-top margin-right">
+              <a
+                v-if="contacts.whatsapp"
+                :href="contacts.whatsapp"
+                target="_blank"
+                class="nav-icon"
+              >
+                <img src="images/logo-whatsapp.svg" alt="WhatsApp" />
+              </a>
+              <a
+                v-if="contacts.telegram"
+                :href="contacts.telegram"
+                target="_blank"
+                class="nav-icon"
+              >
+                <img src="images/logo-telegram.svg" alt="Telegram" />
+              </a>
+              <a v-if="contacts.phone" :href="`tel:${contacts.phoneNumber}`"
+                >{{ contacts.phone }}</a
+              >
+            </div>
+            <a
+              v-if="contacts.email"
+              :href="`mailto:${contacts.email}`"
+              class="email"
+              >{{ contacts.email }}</a
+            >
+            <div class="social-links margin-top">
+              <a
+                v-if="contacts.socialVk"
+                :href="contacts.socialVk"
+                class="social-link vk"
+              ></a>
+              <a
+                v-if="contacts.socialTelegram"
+                :href="contacts.socialTelegram"
+                class="social-link telegram"
+              ></a>
+              <a
+                v-if="contacts.socialInstagram"
+                :href="contacts.socialInstagram"
+                class="social-link instagram"
+              ></a>
+              <a
+                v-if="contacts.socialOdnoklassniki"
+                :href="contacts.socialOdnoklassniki"
+                class="social-link odnoklassniki"
+              ></a>
+            </div>
+            <a :href="contacts.rttfURL" class="rttf-url"></a>
+          </div>
+          <div v-if="contacts.address" class="yandex-map" id="yandex-map"></div>
+        </div>
+
+        <footer class="site-footer">
+          <div class="footer-content">
+            <a href="https://rttf.ru"
+              ><img
+                src="images/rttf-logo.png"
+                alt="RTTF Logo"
+                class="footer-logo"
+              />
+            </a>
+            <div class="footer-text">
+              Клуб настольного тенниса {{ mainInfo.clubName }} © 2023
+            </div>
+          </div>
+        </footer>
+      </div>
       <!-- конец app vue-->
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script src="https://unpkg.com/vue@3.4.5"></script>
 
     <script src="script.js"></script>
   </body>

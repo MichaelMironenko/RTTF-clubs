@@ -1,406 +1,66 @@
-new Vue({
+const { createApp } = Vue;
+
+const App = {
   el: "#app",
-  data: {
-    mainSection: {
-      heading: "Клуб настольного тенниса Лу.Центр",
-      subheading: "г. Москва, Старокирочный переулок д.2",
-      image: "images/main-section-bg.webp",
-    },
-    aboutClub: {
-      heading: "О клубе",
-      text: "Клуб открылся в 2015 году. С тех пор мы держим планку качества и неустанно развиваемся, чтобы сделать клуб удобным, безопасным, доступным.",
-      features: [
-        "Комфортные раздевалки с санузлом, душевыми и запираемыми шкафчиками",
-        "9 профессиональных столов Stiga Expert Roller",
-        "Стол с роботом Butterfly Amicus professional",
-        "Спортивный линолеум Tarkett толщиной 6,5 мм",
-        "Высота потолков 5 метров",
-      ],
-      galleryImages: [
-        "images/image-32.png",
-        "images/group-training.jpg",
-        "images/news-1.jpg",
-        "images/group-training.jpg",
-        "images/news-1.jpg",
-        "images/image-32.png",
-        "images/group-training.jpg",
-        "images/image-32.png",
-        "images/group-training.jpg",
-        "images/news-1.jpg",
-        "images/group-training.jpg",
-        "images/news-1.jpg",
-        "images/image-32.png",
-        "images/group-training.jpg",
-        "images/image-32.png",
-        "images/group-training.jpg",
-        "images/news-1.jpg",
-        "images/group-training.jpg",
-        "images/news-1.jpg",
-        "images/image-32.png",
-      ],
-    },
-
-    news: [
-      {
-        id: 1,
-        date: "2023-10-22",
-        title: "Утренние тренировки",
-        text: `Мы рады объявить о запуске новых утренних групп для начинающих, которые будут проходить с 9:00 до 10:30 каждый понедельник и среду. Эти занятия созданы специально для тех, кто хочет начать свой день с заряда энергии и позитива, развивая при этом новые навыки и улучшая физическую форму.
-
-Утренние часы — это идеальное время для тренировок, которые помогут установить тон для всего остального дня. В нашей новой программе, разработанной опытными тренерами, вы найдете уникальное сочетание базовых упражнений и техник, которые помогут вам не только освоить основы настольного тенниса, но и научат вас правильной технике и стратегии игры.
-
-Занятия начнутся уже эту среду, и мы приглашаем всех, кто хочет присоединиться к утренним группам. Нет лучшего способа сделать ваше утро продуктивным, чем динамичная игра в настольный теннис. Записаться на занятия можно уже сейчас, позвонив по номеру, указанному на нашем сайте, или оставив заявку в ресепшн нашего клуба.`,
-        image: "",
-        link: "https://www.rttf.ru/news1.html",
-      },
-      {
-        id: 2,
-        date: "2023-09-15",
-        title: "Турнир выходного дня",
-        text: "Приглашаем всех желающих на еженедельные турниры по настольному теннису каждую субботу.",
-        image: "images/news-2.jpg",
-        link: "https://www.rttf.ru/news2.html",
-      },
-      {
-        id: 3,
-        date: "2023-08-30",
-        title: "Обучающие семинары",
-        text: "Присоединяйтесь к нашим семинарам по тактике игры в настольный теннис каждую пятницу вечером. Присоединяйтесь к нашим семинарам по тактике игры в настольный теннис каждую пятницу вечером Присоединяйтесь к нашим семинарам по тактике игры в настольный теннис каждую пятницу вечером",
-        image: "images/news-4.jpg",
-        link: "https://www.rttf.ru/news2.html",
-      },
-      {
-        id: 4,
-        date: "2023-07-12",
-        title: "Летние скидки на абонементы",
-        text: "Специальное летнее предложение - скидки на абонементы для новых клиентов на июль и август.",
-        image: "images/news-4.jpg",
-        link: "https://www.rttf.ru/news3.html",
-      },
-      {
-        id: 5,
-        date: "2023-06-20",
-        title: "Детские группы",
-        text: "Запись в детские группы по настольному теннису открыта! Тренировки проводятся по вторникам и четвергам.",
-        image: "images/news-5.jpg",
-        link: "https://www.rttf.ru/news4.html",
-      },
-    ],
-    selectedNews: null,
-    days: [
-      "Понедельник",
-      "Вторник",
-      "Среда",
-      "Четверг",
-      "Пятница",
-      "Суббота",
-      "Воскресенье",
-    ],
-    events: [
-      {
-        type: "training",
-        day: "Понедельник",
-        startTime: "19:30",
-        endTime: "21:30",
-        name: "Боковые подачи и их прием",
-        moreDetails: "Смирнов А.",
-      },
-      {
-        type: "tournament",
-        day: "Пятница",
-        startTime: "14:00",
-        endTime: "16:00",
-        name: "Турнир высшей лиги",
-        moreDetails: "< 312",
-      },
-      {
-        type: "training",
-        day: "Воскресенье",
-        startTime: "21:30",
-        endTime: "22:30",
-        name: "Топ-спин справа со всего стола",
-        moreDetails: "Петров В.",
-      },
-      {
-        type: "tournament",
-        day: "Вторник",
-        startTime: "20:30",
-        endTime: "23:00",
-        name: "Весенний чемпионат",
-        moreDetails: "< 911",
-      },
-      {
-        type: "training",
-        day: "Понедельник",
-        startTime: "08:30",
-        endTime: "10:30",
-        name: "Защитная тактика",
-        moreDetails: "Иванов Б.",
-      },
-      {
-        type: "tournament",
-        day: "Понедельник",
-        startTime: "12:00",
-        endTime: "15:00",
-        name: "Летние игры",
-        moreDetails: "< 675",
-      },
-      {
-        type: "training",
-        day: "Пятница",
-        startTime: "20:00",
-        endTime: "21:00",
-        name: "Работа ног",
-        moreDetails: "Иванов Б.",
-      },
-      {
-        type: "tournament",
-        day: "Понедельник",
-        startTime: "20:30",
-        endTime: "22:30",
-        name: "Кубок вызова",
-        moreDetails: "< 970",
-      },
-      {
-        type: "training",
-        day: "Среда",
-        startTime: "13:00",
-        endTime: "14:00",
-        name: "Топ-спин справа со всего стола",
-        moreDetails: "Петров В.",
-      },
-      {
-        type: "tournament",
-        day: "Понедельник",
-        startTime: "11:30",
-        endTime: "14:30",
-        name: "Чемпионат области",
-        moreDetails: "< 638",
-      },
-      {
-        type: "training",
-        day: "Четверг",
-        startTime: "12:00",
-        endTime: "13:00",
-        name: "Атакующие удары",
-        moreDetails: "Петров В.",
-      },
-      {
-        type: "tournament",
-        day: "Четверг",
-        startTime: "15:30",
-        endTime: "18:30",
-        name: "Турнир высшей лиги",
-        moreDetails: "< 198",
-      },
-      {
-        type: "training",
-        day: "Четверг",
-        startTime: "10:00",
-        endTime: "12:00",
-        name: "Стратегия игры на сетке",
-        moreDetails: "Иванов Б.",
-      },
-      {
-        type: "tournament",
-        day: "Четверг",
-        startTime: "18:00",
-        endTime: "20:00",
-        name: "Весенний чемпионат",
-        moreDetails: "< 101",
-      },
-      {
-        type: "training",
-        day: "Четверг",
-        startTime: "20:00",
-        endTime: "21:00",
-        name: "Топ-спин справа со всего стола",
-        moreDetails: "Смирнов А.",
-      },
-    ],
-    selectedDay: null,
-    coaches: [
-      {
-        id: "1",
-        name: "Анна Вознесенская",
-        rating: 4.9,
-        reviewsCount: "105",
-        info: "Мастер спорта России. Многократный чемпион Москвы. Призёр ТОП-12 и ТОП-24 сильнейших спортсменов России.",
-        playingExperience: "13",
-        coachingExperience: "7",
-        price: "2500",
-        profileLink: "https://rttf.ru/players/anna-voznesenskaya",
-        photo: "images/trainer-1.jpg",
-      },
-      {
-        id: "2",
-        name: "Антон Булдак",
-        rating: 4.9,
-        reviewsCount: "105",
-        info: "Магистр физической культуры, тренерский стаж более 9 лет, имеет многолетний опыт тренерской работы и подготовки спортсменов разного уровня.",
-        playingExperience: "11",
-        coachingExperience: "6",
-        price: "2500",
-        profileLink: "https://rttf.ru/players/anton-buldak",
-        photo: "images/trainer-2.jpg",
-      },
-      {
-        id: "3",
-        name: "Никита Курильчик",
-        rating: 4.9,
-        reviewsCount: "105",
-        info: "Мастер спорта по настольному теннису. Мастер спорта Республики Беларусь.",
-        playingExperience: "8",
-        coachingExperience: "2",
-        price: "2500",
-        profileLink: "https://rttf.ru/players/nikita-kurilchik",
-        photo: "images/trainer-3.jpg",
-      },
-    ],
-    selectedCoach: null,
-    prices: {
-      title: "Цены",
-      menu: [
-        {
-          title: "Аренда стола (55 минут)",
-          items: [
-            { text: "Будни c 7:00 до 18:00", price: "600 ₽" },
-            {
-              text: "Будни c 18:00 до 23:00, выходные и праздничные дни",
-              price: "700 ₽",
-            },
-            { text: "Робот «Robo-Pong» + стол", price: "1000 ₽" },
-          ],
-        },
-        {
-          title: "Абонементы на аренду стола (10 часов)",
-          items: [
-            { text: "Будни c 7:00 до 18:00", price: "5000 ₽" },
-            {
-              text: "Будни c 18:00 до 23:00, выходные и праздничные дни",
-              price: "6000 ₽",
-            },
-          ],
-        },
-        {
-          title: "Аренда инвентаря",
-          items: [
-            { text: "Ракетка", price: "100 ₽" },
-            { text: "Ракетка + мячи (2-4 шт)", price: "100 ₽" },
-            { text: "БКМ (большое количество мячей - 50 шт)", price: "300 ₽" },
-          ],
-        },
-      ],
-    },
-    expandedComment: null,
-    reviews: {
-      title: "Отзывы с сайта RTTF",
-      averageRating: 4.8,
-      reviewData: [
-        {
-          name: "Александр Семёнов",
-          rating: 5,
-          gameRating: 950,
-          comment:
-            "Великолепные условия для игры! Столы отличного качества, а освещение идеально подходит для тренировок.",
-          date: "24 июня 2023 г.",
-          avatar: "images/user1.jpg",
-        },
-        {
-          name: "Дмитрий Смирнов",
-          rating: 4,
-          gameRating: 870,
-          comment:
-            "Хорошая обстановка и дружелюбный персонал. Немного тесно в часы пик, но в остальное время - отлично.",
-          date: "15 июля 2023 г.",
-          avatar: "images/user2.jpg",
-        },
-        {
-          name: "Игорь Николаев",
-          rating: 5,
-          gameRating: 820,
-          comment:
-            "Превосходные тренеры, которые действительно помогают улучшить технику игры. Отлично подходит для всех уровней подготовки.",
-          date: "10 августа 2023 г.",
-          avatar: "images/user3.jpg",
-        },
-        {
-          name: "Елена Петрова",
-          rating: 5,
-          gameRating: 910,
-          comment:
-            "Клуб предлагает разнообразные турниры и соревнования, что очень мотивирует. Также здесь прекрасная атмосфера.",
-          date: "21 августа 2023 г.",
-          avatar: "images/user4.jpg",
-        },
-        {
-          name: "Мария Иванова",
-          rating: 5,
-          gameRating: 780,
-          comment:
-            "Мой любимый клуб. Хожу сюда уже больше года. Отличный персонал, всегда помогут и подскажут. Хорошее освещение, много места вокруг столов. Комфортные раздевалки, есть места для парковки рядом со зданием. Всё отлично.Мой любимый клуб. Хожу сюда уже больше года. Отличный персонал, всегда помогут и подскажут. Хорошее освещение, много места вокруг столов. Комфортные раздевалки, есть места для парковки рядом со зданием. Всё отлично.",
-          date: "2 сентября 2023 г.",
-          avatar: "images/user5.jpg",
-        },
-      ],
-    },
-
-    contacts: {
-      title: "Контакты",
-      clubName: "Лу.Центр",
-      logo: "images/sitelogo.png",
-      location: {
-        address: "г. Москва, Старокирочный переулок д.2",
-        metroLineColor: "blue",
-        metroStation: "Бауманская",
-      },
-      workingHours: [
-        {
-          title: "Пн-Пт:",
-          hours: "07:00 - 23:00",
-        },
-        {
-          title: "Сб-Вс:",
-          hours: "09:00 - 00:00",
-        },
-      ],
-      whatsapp: "https://wa.me/79253697082",
-      telegram: "https://t.me/club",
-      phone: "+7 (925) 369 70 82",
-      email: "vlttc@mail.ru",
-      social: {
-        vk: "https://vk.com",
-        telegram: "https://t.me",
-        instagram: "https://instagram.com",
-        odnoklassniki: "https://ok.ru",
-      },
-      rttfURL: "https://rttf.ru",
-    },
-    isNavOpen: false,
-    selectedCoachName: "",
-    isContactFormVisible: false,
-    currentSlide: 0,
-    startX: 0,
-    currentX: 0,
-    cachedCarouselWidth: 0,
-    isDragging: false,
+  data() {
+    return {
+      isNavOpen: false,
+      selectedCoachName: "",
+      isContactFormVisible: false,
+      currentSlide: 0,
+      startX: 0,
+      currentX: 0,
+      cachedCarouselWidth: 0,
+      isDragging: false,
+      selectedDay: null,
+      isLoading: true,
+      selectedNews: null,
+    };
   },
 
   mounted() {
-    this.setupMenu();
-    setTimeout(this.loadMapScript, 4000);
-    this.updateCarouselWidth();
-    window.addEventListener("resize", this.updateCarouselWidth); // Обновление ширины карусели при изменении размера окна
-    this.applyTransform();
-    this.selectDay(this.days[0]);
-  },
-  beforeDestroy() {
-    window.removeEventListener("resize", this.updateCarouselWidth); // Удаление обработчика при уничтожении компонента
+    this.loadData();
   },
   // created: function () {
   //   this.times = this.generateTimes(7, 23);
   // },
   methods: {
+    async loadData() {
+      this.isLoading = true;
+      // Начало загрузки данных
+      try {
+        const response = await fetch("edit/data.json");
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        this.mainInfo = data.sections.mainInfo;
+        this.aboutClub = data.sections.aboutClub;
+        this.news = data.sections.news;
+        this.activities = data.sections.activities;
+        this.prices = data.sections.prices;
+        this.coaches = data.sections.coaches;
+        this.reviews = data.sections.reviews;
+        this.contacts = data.sections.contacts;
+
+        // Загрузка других данных...
+      } catch (e) {
+        console.error("Ошибка при загрузке данных: ", e);
+      } finally {
+        this.isLoading = false;
+        this.$nextTick(() => {
+          this.updateCarouselWidth();
+          this.applyTransform();
+          window.addEventListener("resize", this.updateCarouselWidth);
+          if (this.activities && this.activities.days) {
+            this.selectDay(this.activities.days[0]);
+          }
+        });
+      }
+    },
+
     formatDate(dateString) {
       const months = [
         "января",
@@ -439,41 +99,39 @@ new Vue({
       };
     },
     initMap() {
-      ymaps
-        .geocode(this.contacts.location.address, { results: 1 })
-        .then((res) => {
-          const firstGeoObject = res.geoObjects.get(0);
-          const coords = firstGeoObject.geometry.getCoordinates();
-          const bounds = firstGeoObject.properties.get("boundedBy");
+      ymaps.geocode(this.contacts.address, { results: 1 }).then((res) => {
+        const firstGeoObject = res.geoObjects.get(0);
+        const coords = firstGeoObject.geometry.getCoordinates();
+        const bounds = firstGeoObject.properties.get("boundedBy");
 
-          this.myMap = new ymaps.Map("yandex-map", {
-            center: coords,
-            zoom: 17,
-          });
-
-          const placemark = new ymaps.Placemark(
-            coords,
-            {},
-            {
-              preset: "islands#darkOrangeDotIcon", // Выбор стандартного стиля для иконки
-            }
-          );
-
-          this.myMap.geoObjects.add(placemark);
-          this.myMap.setBounds(bounds, {
-            checkZoomRange: true,
-          });
+        this.myMap = new ymaps.Map("yandex-map", {
+          center: coords,
+          zoom: 17,
         });
+
+        const placemark = new ymaps.Placemark(
+          coords,
+          {},
+          {
+            preset: "islands#darkOrangeDotIcon", // Выбор стандартного стиля для иконки
+          }
+        );
+
+        this.myMap.geoObjects.add(placemark);
+        this.myMap.setBounds(bounds, {
+          checkZoomRange: true,
+        });
+      });
     },
     addCategory() {
-      sections.prices.menu.push({
+      this.prices.menu.push({
         title: "",
         items: [],
       });
     },
 
     deleteCategory(category) {
-      sections.prices.menu.splice(sections.prices.menu.indexOf(category), 1);
+      this.prices.menu.splice(this.prices.menu.indexOf(category), 1);
     },
 
     addItem(category) {
@@ -541,34 +199,25 @@ new Vue({
     closeCoachModal() {
       this.isContactFormVisible = false;
     },
+    calculateExperience(yearsString) {
+      const startDate = new Date(yearsString);
+      const currentDate = new Date();
+
+      let years = currentDate.getFullYear() - startDate.getFullYear();
+      const monthDifference = currentDate.getMonth() - startDate.getMonth();
+
+      // Уменьшаем количество лет, если текущий месяц еще не наступил
+      if (
+        monthDifference < 0 ||
+        (monthDifference === 0 && currentDate.getDate() < startDate.getDate())
+      ) {
+        years--;
+      }
+
+      return years;
+    },
     toggleComment(index) {
       this.expandedComment = this.expandedComment === index ? null : index;
-    },
-    setupMenu() {
-      var hamburger = this.$el.querySelector(".nav-hamburger");
-      var navLinks = this.$el.querySelector(".nav-links");
-      var navClose = this.$el.querySelector(".nav-close");
-
-      if (hamburger && navLinks && navClose) {
-        hamburger.addEventListener("click", () => {
-          navLinks.classList.add("active");
-          navClose.classList.add("active");
-          hamburger.classList.add("active");
-        });
-
-        navClose.addEventListener("click", () => {
-          navLinks.classList.remove("active");
-          navClose.classList.remove("active");
-          hamburger.classList.remove("active");
-        });
-      } else {
-        if (!hamburger)
-          console.error("The hamburger element is not found in the DOM.");
-        if (!navLinks)
-          console.error("The nav-links element is not found in the DOM.");
-        if (!navClose)
-          console.error("The nav-close element is not found in the DOM.");
-      }
     },
 
     getStarImage(rating, index) {
@@ -631,7 +280,7 @@ new Vue({
       this.$refs.carouselInner.style.transform = `translateX(${this.currentX}px)`;
     },
     nextSlide() {
-      if (this.currentSlide < this.aboutClub.galleryImages.length - 1) {
+      if (this.currentSlide < this.aboutClub.imageData.length - 1) {
         this.currentSlide++;
         this.currentX = -this.currentSlide * this.cachedCarouselWidth;
         this.applyTransform();
@@ -657,12 +306,49 @@ new Vue({
     },
   },
   computed: {
+    navLinks() {
+      let links = [
+        { id: "about", text: "О клубе", href: "#about", show: true }, // Всегда показываем
+        {
+          id: "news",
+          text: "Новости и акции",
+          href: "#news",
+          show: this.news.showBlock,
+        },
+        {
+          id: "activities",
+          text: "Турниры и тренировки",
+          href: "#activities",
+          show: this.activities.showBlock,
+        },
+        {
+          id: "prices",
+          text: "Цены",
+          href: "#prices",
+          show: this.prices.showBlock,
+        },
+        {
+          id: "coaches",
+          text: "Тренеры",
+          href: "#coaches",
+          show: this.coaches.showBlock,
+        },
+        {
+          id: "reviews",
+          text: "Отзывы",
+          href: "#reviews",
+          show: this.reviews.showBlock,
+        },
+        { id: "contacts", text: "Контакты", href: "#contacts", show: true }, // Всегда показываем
+      ];
+      return links.filter((link) => link.show);
+    },
     isCommentLong() {
       return (comment) => comment.length > 150;
     },
     filteredEvents() {
       let times = {};
-      this.events.forEach((event) => {
+      this.activities.events.forEach((event) => {
         // Используйте startTime для создания ключей в объекте times
         const eventTimeKey = event.startTime.replace(":", "");
         if (!times[eventTimeKey]) {
@@ -682,7 +368,7 @@ new Vue({
     eventsForSelectedDay() {
       if (this.selectedDay) {
         // Фильтруем события для выбранного дня
-        const filteredEvents = this.events.filter(
+        const filteredEvents = this.activities.events.filter(
           (event) => event.day === this.selectedDay
         );
 
@@ -703,7 +389,7 @@ new Vue({
       return this.cachedCarouselWidth; // Использование кэшированного значения
     },
     displayIndicators() {
-      const total = this.aboutClub.galleryImages.length;
+      const total = this.aboutClub.imageData.length;
       let indicators = [];
 
       // Если 10 или меньше фото, показываем индикаторы для всех
@@ -740,4 +426,7 @@ new Vue({
       return indicators;
     },
   },
-});
+};
+const app = createApp(App);
+
+app.mount("#app");
