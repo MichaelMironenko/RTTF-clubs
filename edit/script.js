@@ -57,51 +57,125 @@ const InputField = {
 const PhotoUpload = {
   data() {
     return {
-      imageData: this.initialImageData || (this.singlePhoto ? null : []),
+      imageData: null,
+    };
+  },
+  props: {
+    label: String,
+    modelValue: String,
+    isAvatar: Boolean,
+    sectionId: String,
+  },
+  methods: {
+    triggerUpload() {
+      this.$refs.fileInput.click();
+    },
+    handleFileSelected(event) {
+      const file = event.target.files[0];
+      this.previewImage(file);
+    },
+    previewImage(file) {
+      if (file && file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+
+            // Определение длинной стороны и коэффициента масштабирования
+            const isWidthLonger = img.width >= img.height;
+            const scaleFactor = isWidthLonger
+              ? 600 / img.width
+              : 600 / img.height;
+
+            // Установка размеров канваса
+            canvas.width = isWidthLonger ? 600 : img.width * scaleFactor;
+            canvas.height = isWidthLonger ? img.height * scaleFactor : 600;
+
+            // Рисование и компрессия изображения
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            const compressedImage = canvas.toDataURL("image/webp", 0.8); // Использование формата WebP
+
+            this.$emit("update:modelValue", compressedImage);
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    },
+    dragOverHandler(event) {
+      event.preventDefault();
+      event.currentTarget.classList.add("dragover");
+    },
+    dragLeaveHandler(event) {
+      event.currentTarget.classList.remove("dragover");
+    },
+    dropHandler(event) {
+      event.preventDefault();
+      const file = event.dataTransfer.files[0];
+      this.previewImage(file);
+      event.currentTarget.classList.remove("dragover");
+    },
+  },
+  template: `
+   <div class="avatar-upload-area" >
+      <label class="avatar-label">{{ label }}</label>
+      <div class="upload-container">
+        <div  :class="{ 'avatar-container': isAvatar }" >
+          <img v-if="modelValue" :src="modelValue" :alt="label + ' preview'" class="avatar-placeholder" />
+          <img v-else src="user-photo.svg" alt="label + ' placeholder'" class="avatar-placeholder" />
+        </div>
+        <div class="upload-area" @click="triggerUpload" @dragover="dragOverHandler" 
+             @dragleave="dragLeaveHandler" @drop="dropHandler">
+          <img src="upload-icon.svg" alt="Upload" class="upload-icon" />
+          <span class="upload-text">Загрузить фото</span>
+        </div>
+        <input type="file" ref="fileInput" @change="handleFileSelected" class="upload-input" />
+      </div>
+    </div>
+  `,
+};
+
+const MultiplePhotoUpload = {
+  data() {
+    return {
+      imageData: [],
       draggingIndex: -1,
-      placeholderIndex: null, // Новое свойство
-      draggedItem: null,
+      placeholderIndex: null,
       hiddenIndex: null,
     };
   },
   props: {
     label: String,
-    isAvatar: Boolean,
     sectionId: String,
-    singlePhoto: {
-      type: Boolean,
-      default: true,
+    maxImages: {
+      type: Number,
+      default: 20,
     },
     initialImageData: {
-      type: [String, Array],
+      type: Array,
       default: () => [],
     },
   },
   computed: {
     imagesWithPlaceholder() {
-      let imageDataWithPlaceholder = [...this.imageData];
+      let images = [...this.imageData];
       if (this.placeholderIndex !== null) {
-        imageDataWithPlaceholder.splice(
-          this.placeholderIndex,
-          0,
-          "placeholder"
-        );
+        images.splice(this.placeholderIndex, 0, "placeholder");
       }
-      return imageDataWithPlaceholder;
+      return images;
     },
   },
   mounted() {
-    if (this.initialImageData && this.initialImageData.length > 0) {
-      this.$emit("image-uploaded", {
-        imageData: this.imageData,
-        sectionId: this.sectionId,
-      });
+    if (this.initialImageData.length > 0) {
+      this.imageData = [...this.initialImageData];
     }
     this.setupTouchListeners();
   },
   methods: {
     setupTouchListeners() {
-      const container = this.$el.querySelector(".multiple-images");
+      const container = this.$el.querySelector(".gallery-images");
       if (container) {
         container.addEventListener("touchstart", this.touchStart, {
           passive: false,
@@ -114,12 +188,10 @@ const PhotoUpload = {
         });
       }
     },
-
     touchStart(index, event) {
-      this.dragStart(index, event);
+      this.dragStart(index);
       event.preventDefault();
     },
-
     touchMove(event) {
       if (this.draggingIndex !== -1) {
         const touchLocation = event.targetTouches[0];
@@ -128,52 +200,35 @@ const PhotoUpload = {
           touchLocation.clientY
         );
         const targetIndex = this.getElementIndex(targetElement);
-
         if (targetIndex !== -1) {
           this.dragEnter(targetIndex);
         }
       }
       event.preventDefault();
     },
-
     touchEnd(event) {
-      if (this.draggingIndex !== -1) {
-        this.drop();
-      }
+      this.drop();
       event.preventDefault();
     },
-
     getElementIndex(element) {
-      if (element && element.parentNode) {
-        return Array.prototype.indexOf.call(
-          element.parentNode.children,
-          element
-        );
-      }
-      return -1;
+      return element && element.parentNode
+        ? Array.prototype.indexOf.call(element.parentNode.children, element)
+        : -1;
     },
     triggerUpload() {
       this.$refs.fileInput.click();
     },
     handleFileSelected(event) {
-      const files = event.target.files;
-      if (!this.singlePhoto) {
-        const maxImages = 20; // Максимальное количество изображений
-        const currentImageCount = this.imageData.length;
-        const availableSlots = maxImages - currentImageCount;
-        const filesToAdd = Array.from(files).slice(0, availableSlots);
-
-        filesToAdd.forEach((file) => this.previewImage(file, true));
-      } else {
-        this.previewImage(files[0], false);
-      }
+      const files = Array.from(event.target.files).slice(
+        0,
+        this.maxImages - this.imageData.length
+      );
+      files.forEach((file) => this.previewImage(file));
     },
-    dragStart(index, event) {
+    dragStart(index) {
       this.draggingIndex = index;
       this.displayData = [...this.imageData];
-      event.dataTransfer.setData("text/plain", "");
     },
-
     dragEnter(index) {
       if (this.draggingIndex !== index) {
         let temp = this.displayData[this.draggingIndex];
@@ -187,108 +242,49 @@ const PhotoUpload = {
       this.draggingIndex = -1;
       this.displayData = [];
     },
-
-    dragLeave(index) {
-      if (this.draggingIndex === index) {
-        this.draggingIndex = -1;
-      }
-    },
-
     removeImage(index) {
       this.imageData.splice(index, 1);
-      this.$emit("image-uploaded", {
-        imageData: this.imageData,
-        sectionId: this.sectionId,
-      });
     },
-    previewImage(file, isMultiple) {
+    previewImage(file) {
       if (file && file.type.startsWith("image/")) {
         const reader = new FileReader();
         reader.onload = (e) => {
-          const image = new Image();
-          image.onload = () => {
-            let width, height, startX, startY;
+          const img = new Image();
+          img.onload = () => {
             const canvas = document.createElement("canvas");
             const ctx = canvas.getContext("2d");
 
-            if (this.isAvatar) {
-              // Размеры для аватара
-              const avatarWidth = 300;
-              const scaleRatio = avatarWidth / image.width;
-              width = avatarWidth;
-              height = image.height * scaleRatio;
-              startX = 0;
-              startY = 0;
-            } else if (this.sectionId === "mainInfo") {
-              // Размеры для mainInfo
-              width = 1600;
-              height = 550;
-              startX = 0;
-              startY = (image.height - (image.width / width) * height) / 2;
+            // Calculate the scaling factor to resize the image to 600px width
+            const scaleFactor = 600 / img.width;
+            const resizedHeight = img.height * scaleFactor;
+
+            canvas.width = 600; // Set canvas width to 600px
+            canvas.height = resizedHeight; // Set canvas height to maintain aspect ratio
+
+            // Draw the image on the canvas with the new dimensions
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            // Convert the canvas content to a data URL (base64 encoded image)
+            const dataUrl = canvas.toDataURL("image/jpeg", 0.6); // Adjust the quality as needed
+
+            // Push the resized image to imageData array or update imageData for single photo
+            if (this.singlePhoto) {
+              this.imageData = dataUrl;
             } else {
-              // Стандартные размеры
-              const max_width = 500;
-              const scaleRatio = max_width / image.width;
-              width = max_width;
-              height = image.height * scaleRatio;
-              startX = 0;
-              startY = 0;
+              this.imageData.push(dataUrl);
             }
 
-            canvas.width = width;
-            canvas.height = height;
-
-            if (this.sectionId === "mainInfo") {
-              // Обрезаем изображение по центру для mainInfo
-              ctx.drawImage(
-                image,
-                startX,
-                startY,
-                image.width,
-                (image.width / width) * height,
-                0,
-                0,
-                width,
-                height
-              );
-            } else {
-              // Уменьшаем изображение для аватара или стандартного размера
-              ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-            }
-
-            canvas.toBlob(
-              (blob) => {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                  let imageDataUpdate;
-                  const dataUrl = reader.result;
-
-                  if (isMultiple) {
-                    this.imageData.push(dataUrl);
-                    imageDataUpdate = [...this.imageData];
-                  } else {
-                    this.imageData = dataUrl;
-                    imageDataUpdate = this.imageData;
-                  }
-
-                  this.$emit("image-uploaded", {
-                    imageData: imageDataUpdate,
-                    sectionId: this.sectionId,
-                    label: this.label, // Убедитесь, что label передается
-                  });
-                };
-                reader.readAsDataURL(blob);
-              },
-              "image/jpeg",
-              0.6 // Качество изображения
-            );
+            // Emit an event with the updated image data
+            this.$emit("image-uploaded", {
+              imageData: this.imageData,
+              sectionId: this.sectionId,
+            });
           };
-          image.src = e.target.result;
+          img.src = e.target.result;
         };
         reader.readAsDataURL(file);
       }
     },
-
     dragOverHandler(event) {
       event.preventDefault();
       event.currentTarget.classList.add("dragover");
@@ -298,68 +294,49 @@ const PhotoUpload = {
     },
     dropHandler(event) {
       event.preventDefault();
-      const files = event.dataTransfer.files;
-      if (!this.singlePhoto && files.length > 0) {
-        Array.from(files).forEach((file) => this.previewImage(file, true));
-      } else if (this.singlePhoto && files.length > 0) {
-        this.previewImage(files[0], false);
-      }
+      const files = Array.from(event.dataTransfer.files).slice(
+        0,
+        this.maxImages - this.imageData.length
+      );
+      files.forEach((file) => this.previewImage(file));
       event.currentTarget.classList.remove("dragover");
     },
   },
   beforeDestroy() {
-    const container = this.$el.querySelector(".multiple-images");
+    const container = this.$el.querySelector(".gallery-images");
     if (container) {
       container.removeEventListener("touchstart", this.touchStart);
       container.removeEventListener("touchmove", this.touchMove);
       container.removeEventListener("touchend", this.touchEnd);
     }
   },
-  watch: {
-    imageData(newImages) {
-      this.$emit("image-uploaded", {
-        imageData: newImages,
-        sectionId: this.sectionId,
-        label: this.label,
-      });
-    },
-  },
   template: `
-  <div class="photo-upload-area">
-    <label class="photo-label">{{ label }}</label>
-    <div class="flex-wrap">
-      <!-- Обработка нескольких изображений -->
-      <div v-if="!singlePhoto && imagesWithPlaceholder.length > 0" class="multiple-images">
-        <div v-for="(item, index) in imagesWithPlaceholder" :key="index" class="image-container">
-          <div v-if="item === 'placeholder'" class="placeholder"></div>
-          <div v-else :draggable="true" :class="{ dragging: index === draggingIndex }"
-          @dragstart="dragStart(index, $event)"
-          @dragover.prevent
-          @dragenter="dragEnter(index)"
-          @dragleave="dragLeave()"
-          @drop="drop()">
-          <img :src="item" class="photo-preview" />
-          <img src="delete.svg" @click="removeImage(index)" class="delete-button" />
-        </div>    
+ <div class="gallery-upload-area">
+  <label class="photo-label">{{ label }}</label>
+  <div class="multiple-images">
+    <div v-for="(item, index) in imagesWithPlaceholder" :key="index" class="image-container">
+      <div v-if="item === 'placeholder'" class="placeholder"></div>
+      <div v-else :draggable="true" :class="{ dragging: index === draggingIndex }" 
+           @dragstart="dragStart(index, $event)" 
+           @dragover.prevent 
+           @dragenter="dragEnter(index)" 
+           @dragleave="dragLeave()" 
+           @drop="drop()">
+        <img :src="item" class="photo-preview" />
+        <img src="delete.svg" @click="removeImage(index)" class="delete-button" />
       </div>
     </div>
-      <!-- Обработка одного изображения -->
-     <div v-if="singlePhoto && imageData" :class="[isAvatar ? 'avatar-preview' : 'single-image']">
-      <img v-if="imageData" :src="imageData || 'user-photo.svg'" class="photo-preview" />
-    </div>
-
-    <!-- Зона загрузки, общая для обоих вариантов -->
-      <div v-if="(!singlePhoto && imageData.length < 20) || (singlePhoto)" class="upload-area"
-      @click="triggerUpload"
-      @dragover="dragOverHandler"
-      @dragleave="dragLeaveHandler"
-      @drop="dropHandler">
+    <div v-if="imageData.length < maxImages" class="upload-area" 
+         @click="triggerUpload" 
+         @dragover="dragOverHandler" 
+         @dragleave="dragLeaveHandler" 
+         @drop="dropHandler">
       <img src="upload-icon.svg" alt="Upload" class="upload-icon" />
-      <span class="upload-text">Загрузить фото</span>
+      <span class="upload-text">Добавить фото</span>
     </div>
   </div>
-    <input type="file" ref="fileInput" @change="handleFileSelected" class="upload-input" :multiple="!singlePhoto" />
-  </div>
+  <input type="file" ref="fileInput" @change="handleFileSelected" class="upload-input" multiple />
+</div>
   `,
 };
 
@@ -400,141 +377,141 @@ const App = {
             "Воскресенье",
           ],
           events: [
-            {
-              id: 1,
-              type: "training",
-              day: "Понедельник",
-              startTime: "19:30",
-              endTime: "21:30",
-              name: "Боковые подачи и их прием",
-              moreDetails: "Смирнов А.",
-            },
-            {
-              id: 2,
-              type: "tournament",
-              day: "Пятница",
-              startTime: "14:00",
-              endTime: "16:00",
-              name: "Турнир высшей лиги",
-              moreDetails: "< 312",
-            },
-            {
-              id: 3,
-              type: "training",
-              day: "Воскресенье",
-              startTime: "21:30",
-              endTime: "22:30",
-              name: "Топ-спин справа со всего стола",
-              moreDetails: "Петров В.",
-            },
-            {
-              id: 4,
-              type: "tournament",
-              day: "Вторник",
-              startTime: "20:30",
-              endTime: "23:00",
-              name: "Весенний чемпионат",
-              moreDetails: "< 911",
-            },
-            {
-              id: 5,
-              type: "training",
-              day: "Понедельник",
-              startTime: "08:30",
-              endTime: "10:30",
-              name: "Защитная тактика",
-              moreDetails: "Иванов Б.",
-            },
-            {
-              id: 6,
-              type: "tournament",
-              day: "Понедельник",
-              startTime: "12:00",
-              endTime: "15:00",
-              name: "Летние игры",
-              moreDetails: "< 675",
-            },
-            {
-              id: 7,
-              type: "training",
-              day: "Пятница",
-              startTime: "20:00",
-              endTime: "21:00",
-              name: "Работа ног",
-              moreDetails: "Иванов Б.",
-            },
-            {
-              id: 8,
-              type: "tournament",
-              day: "Понедельник",
-              startTime: "20:30",
-              endTime: "22:30",
-              name: "Кубок вызова",
-              moreDetails: "< 970",
-            },
-            {
-              id: 9,
-              type: "training",
-              day: "Среда",
-              startTime: "13:00",
-              endTime: "14:00",
-              name: "Топ-спин справа со всего стола",
-              moreDetails: "Петров В.",
-            },
-            {
-              id: 10,
-              type: "tournament",
-              day: "Понедельник",
-              startTime: "11:30",
-              endTime: "14:30",
-              name: "Чемпионат области",
-              moreDetails: "< 638",
-            },
-            {
-              id: 11,
-              type: "training",
-              day: "Четверг",
-              startTime: "12:00",
-              endTime: "13:00",
-              name: "Атакующие удары",
-              moreDetails: "Петров В.",
-            },
-            {
-              id: 12,
-              type: "tournament",
-              day: "Четверг",
-              startTime: "15:30",
-              endTime: "18:30",
-              name: "Турнир высшей лиги",
-              moreDetails: "< 198",
-            },
-            {
-              id: 13,
-              type: "training",
-              day: "Четверг",
-              startTime: "10:00",
-              endTime: "12:00",
-              name: "Стратегия игры на сетке",
-              moreDetails: "Иванов Б.",
-            },
-            {
-              id: 14,
-              type: "tournament",
-              day: "Четверг",
-              startTime: "18:00",
-              endTime: "20:00",
-              name: "Весенний чемпионат",
-              moreDetails: "< 101",
-            },
-            {
-              id: 15,
-              type: "training",
-              day: "Четверг",
-              startTime: "20:00",
-              endTime: "21:00",
-              name: "Топ-спин справа со всего стола",
-              moreDetails: "Смирнов А.",
-            },
+            // {
+            //   id: 1,
+            //   type: "training",
+            //   day: "Понедельник",
+            //   startTime: "19:30",
+            //   endTime: "21:30",
+            //   name: "Боковые подачи и их прием",
+            //   moreDetails: "Смирнов А.",
+            // },
+            // {
+            //   id: 2,
+            //   type: "tournament",
+            //   day: "Пятница",
+            //   startTime: "14:00",
+            //   endTime: "16:00",
+            //   name: "Турнир высшей лиги",
+            //   moreDetails: "< 312",
+            // },
+            // {
+            //   id: 3,
+            //   type: "training",
+            //   day: "Воскресенье",
+            //   startTime: "21:30",
+            //   endTime: "22:30",
+            //   name: "Топ-спин справа со всего стола",
+            //   moreDetails: "Петров В.",
+            // },
+            // {
+            //   id: 4,
+            //   type: "tournament",
+            //   day: "Вторник",
+            //   startTime: "20:30",
+            //   endTime: "23:00",
+            //   name: "Весенний чемпионат",
+            //   moreDetails: "< 911",
+            // },
+            // {
+            //   id: 5,
+            //   type: "training",
+            //   day: "Понедельник",
+            //   startTime: "08:30",
+            //   endTime: "10:30",
+            //   name: "Защитная тактика",
+            //   moreDetails: "Иванов Б.",
+            // },
+            // {
+            //   id: 6,
+            //   type: "tournament",
+            //   day: "Понедельник",
+            //   startTime: "12:00",
+            //   endTime: "15:00",
+            //   name: "Летние игры",
+            //   moreDetails: "< 675",
+            // },
+            // {
+            //   id: 7,
+            //   type: "training",
+            //   day: "Пятница",
+            //   startTime: "20:00",
+            //   endTime: "21:00",
+            //   name: "Работа ног",
+            //   moreDetails: "Иванов Б.",
+            // },
+            // {
+            //   id: 8,
+            //   type: "tournament",
+            //   day: "Понедельник",
+            //   startTime: "20:30",
+            //   endTime: "22:30",
+            //   name: "Кубок вызова",
+            //   moreDetails: "< 970",
+            // },
+            // {
+            //   id: 9,
+            //   type: "training",
+            //   day: "Среда",
+            //   startTime: "13:00",
+            //   endTime: "14:00",
+            //   name: "Топ-спин справа со всего стола",
+            //   moreDetails: "Петров В.",
+            // },
+            // {
+            //   id: 10,
+            //   type: "tournament",
+            //   day: "Понедельник",
+            //   startTime: "11:30",
+            //   endTime: "14:30",
+            //   name: "Чемпионат области",
+            //   moreDetails: "< 638",
+            // },
+            // {
+            //   id: 11,
+            //   type: "training",
+            //   day: "Четверг",
+            //   startTime: "12:00",
+            //   endTime: "13:00",
+            //   name: "Атакующие удары",
+            //   moreDetails: "Петров В.",
+            // },
+            // {
+            //   id: 12,
+            //   type: "tournament",
+            //   day: "Четверг",
+            //   startTime: "15:30",
+            //   endTime: "18:30",
+            //   name: "Турнир высшей лиги",
+            //   moreDetails: "< 198",
+            // },
+            // {
+            //   id: 13,
+            //   type: "training",
+            //   day: "Четверг",
+            //   startTime: "10:00",
+            //   endTime: "12:00",
+            //   name: "Стратегия игры на сетке",
+            //   moreDetails: "Иванов Б.",
+            // },
+            // {
+            //   id: 14,
+            //   type: "tournament",
+            //   day: "Четверг",
+            //   startTime: "18:00",
+            //   endTime: "20:00",
+            //   name: "Весенний чемпионат",
+            //   moreDetails: "< 101",
+            // },
+            // {
+            //   id: 15,
+            //   type: "training",
+            //   day: "Четверг",
+            //   startTime: "20:00",
+            //   endTime: "21:00",
+            //   name: "Топ-спин справа со всего стола",
+            //   moreDetails: "Смирнов А.",
+            // },
           ],
           currentDay: "Понедельник",
         },
@@ -543,42 +520,42 @@ const App = {
           showBlock: true,
           displayedTitle: "Тренеры клуба",
           coachesList: [
-            {
-              id: "1",
-              name: "Анна Вознесенская",
-              rating: 4.9,
-              reviewsCount: "105",
-              info: "Мастер спорта России. Многократный чемпион Москвы. Призёр ТОП-12 и ТОП-24 сильнейших спортсменов России.",
-              playingExperience: "2019-04",
-              coachingExperience: "2022-02",
-              price: "2500",
-              profileLink: "https://rttf.ru/players/anna-voznesenskaya",
-              photo: "../images/trainer-1.jpg",
-            },
-            {
-              id: "2",
-              name: "Антон Булдак",
-              rating: 4.9,
-              reviewsCount: "105",
-              info: "Магистр физической культуры, тренерский стаж более 9 лет, имеет многолетний опыт тренерской работы и подготовки спортсменов разного уровня.",
-              playingExperience: "2012-02",
-              coachingExperience: "2021-02",
-              price: "2500",
-              profileLink: "https://rttf.ru/players/anton-buldak",
-              photo: "../images/trainer-2.jpg",
-            },
-            {
-              id: "3",
-              name: "Никита Курильчик",
-              rating: 4.9,
-              reviewsCount: "105",
-              info: "Мастер спорта по настольному теннису. Мастер спорта Республики Беларусь.",
-              playingExperience: "2012-05",
-              coachingExperience: "2020-05",
-              price: "2500",
-              profileLink: "https://rttf.ru/players/nikita-kurilchik",
-              photo: "../images/trainer-3.jpg",
-            },
+            //   {
+            //     id: "1",
+            //     name: "Анна Вознесенская",
+            //     rating: 4.9,
+            //     reviewsCount: "105",
+            //     info: "Мастер спорта России. Многократный чемпион Москвы. Призёр ТОП-12 и ТОП-24 сильнейших спортсменов России.",
+            //     playingExperience: "2019-04",
+            //     coachingExperience: "2022-02",
+            //     price: "2500",
+            //     profileLink: "https://rttf.ru/players/anna-voznesenskaya",
+            //     photo: "../images/trainer-1.jpg",
+            //   },
+            //   {
+            //     id: "2",
+            //     name: "Антон Булдак",
+            //     rating: 4.9,
+            //     reviewsCount: "105",
+            //     info: "Магистр физической культуры, тренерский стаж более 9 лет, имеет многолетний опыт тренерской работы и подготовки спортсменов разного уровня.",
+            //     playingExperience: "2012-02",
+            //     coachingExperience: "2021-02",
+            //     price: "2500",
+            //     profileLink: "https://rttf.ru/players/anton-buldak",
+            //     photo: "../images/trainer-2.jpg",
+            //   },
+            //   {
+            //     id: "3",
+            //     name: "Никита Курильчик",
+            //     rating: 4.9,
+            //     reviewsCount: "105",
+            //     info: "Мастер спорта по настольному теннису. Мастер спорта Республики Беларусь.",
+            //     playingExperience: "2012-05",
+            //     coachingExperience: "2020-05",
+            //     price: "2500",
+            //     profileLink: "https://rttf.ru/players/nikita-kurilchik",
+            //     photo: "../images/trainer-3.jpg",
+            //   },
           ],
         },
         prices: {
@@ -586,38 +563,38 @@ const App = {
           showBlock: true,
           displayedTitle: "Цены",
           menu: [
-            {
-              title: "Аренда стола (55 минут)",
-              items: [
-                { text: "Будни c 7:00 до 18:00", price: "600 ₽" },
-                {
-                  text: "Будни c 18:00 до 23:00, выходные и праздничные дни",
-                  price: "700 ₽",
-                },
-                { text: "Робот «Robo-Pong» + стол", price: "1000 ₽" },
-              ],
-            },
-            {
-              title: "Абонементы на аренду стола (10 часов)",
-              items: [
-                { text: "Будни c 7:00 до 18:00", price: "5000 ₽" },
-                {
-                  text: "Будни c 18:00 до 23:00, выходные и праздничные дни",
-                  price: "6000 ₽",
-                },
-              ],
-            },
-            {
-              title: "Аренда инвентаря",
-              items: [
-                { text: "Ракетка", price: "100 ₽" },
-                { text: "Ракетка + мячи (2-4 шт)", price: "100 ₽" },
-                {
-                  text: "БКМ (большое количество мячей - 50 шт)",
-                  price: "300 ₽",
-                },
-              ],
-            },
+            // {
+            //   title: "Аренда стола (55 минут)",
+            //   items: [
+            //     { text: "Будни c 7:00 до 18:00", price: "600 ₽" },
+            //     {
+            //       text: "Будни c 18:00 до 23:00, выходные и праздничные дни",
+            //       price: "700 ₽",
+            //     },
+            //     { text: "Робот «Robo-Pong» + стол", price: "1000 ₽" },
+            //   ],
+            // },
+            // {
+            //   title: "Абонементы на аренду стола (10 часов)",
+            //   items: [
+            //     { text: "Будни c 7:00 до 18:00", price: "5000 ₽" },
+            //     {
+            //       text: "Будни c 18:00 до 23:00, выходные и праздничные дни",
+            //       price: "6000 ₽",
+            //     },
+            //   ],
+            // },
+            // {
+            //   title: "Аренда инвентаря",
+            //   items: [
+            //     { text: "Ракетка", price: "100 ₽" },
+            //     { text: "Ракетка + мячи (2-4 шт)", price: "100 ₽" },
+            //     {
+            //       text: "БКМ (большое количество мячей - 50 шт)",
+            //       price: "300 ₽",
+            //     },
+            //   ],
+            // },
           ],
         },
         reviews: {
@@ -724,23 +701,67 @@ const App = {
     },
   },
   methods: {
-    async loadData() {
+    async created() {
       try {
-        const response = await fetch("data.json");
+        const subdomain = window.location.hostname.split(".")[0];
+        // this.clubName = subdomain;
+        this.clubName = "rubin";
+
+        const dataUrl = `/json/${subdomain}.json?timestamp=${new Date().getTime()}`;
+        const response = await fetch(dataUrl);
         if (!response.ok) {
-          throw new Error("Ошибка при загрузке данных");
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const data = await response.json();
-        console.log(data);
-        this.sections = data.sections;
-        this.activeTab = data.activeTab;
-        // ... загрузка других свойств, если они есть
-      } catch (error) {
-        console.error("Не удалось загрузить данные:", error);
+        const jsonData = await response.json();
+        this.sections = jsonData.sections;
+      } catch (e) {
+        this.loadFromLocalStorage();
+        console.error("Ошибка при загрузке данных:", e);
       }
     },
     saveEvent(index) {
       this.editingEventIndex = null;
+    },
+
+    async sendNewPhotos() {
+      for (let i = 0; i < this.sections.aboutClub.imageData.length; i++) {
+        let photo = this.sections.aboutClub.imageData[i];
+
+        // Check if the photo is new and needs to be uploaded
+        if (photo.isNew) {
+          try {
+            let formData = new FormData();
+            formData.append("photo", photo.file);
+
+            // Replace with your actual upload URL and parameters
+            let response = await fetch("/php/photoLoad.php", {
+              method: "POST",
+              body: formData,
+            });
+
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+
+            let result = await response.json();
+
+            // Check for server-side errors
+            if (result.err.length > 0) {
+              throw new Error(result.err);
+            }
+
+            // Update the imageData with the new name from the server
+            this.sections.aboutClub.imageData[i] = {
+              ...photo,
+              file: null,
+              isNew: false,
+              name: result.newName,
+            };
+          } catch (error) {
+            console.error("Error uploading photo:", error.message);
+          }
+        }
+      }
     },
 
     updateEventData(index, key, eventPayload) {
@@ -778,7 +799,7 @@ const App = {
     },
     loadFromLocalStorage() {
       const storedData = localStorage.getItem("sections");
-
+      console.log(storedData);
       if (storedData) {
         this.sections = JSON.parse(storedData);
       }
@@ -986,6 +1007,7 @@ const App = {
 const app = createApp(App);
 app.component("input-field", InputField);
 app.component("photo-upload", PhotoUpload);
+app.component("multiple-photo-upload", MultiplePhotoUpload);
 
 // Монтирование приложения
 app.mount("#vue-app");

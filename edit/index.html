@@ -59,10 +59,9 @@
 
               <photo-upload
                 label="Логотип (показывается в панели навигации)"
-                :initial-image-data="sections.mainInfo.logo"
+                v-model="sections.mainInfo.logo"
                 section-id="mainInfo"
                 :is-avatar="true"
-                :single-photo="true"
                 @image-uploaded="handleImageUpload"
               ></photo-upload>
 
@@ -103,14 +102,16 @@
                 :is-submit-attempted="isSubmitAttempted"
               ></input-field>
 
-              <photo-upload
+              <multiple-photo-upload
                 :initial-image-data="sections.aboutClub.imageData"
                 :label="'Галерея фото клуба (до 20 фото, желательно в альбомной ориентации)'"
                 :section-id="'aboutClub'"
-                :single-photo="false"
                 @image-uploaded="handleImageUpload"
-              ></photo-upload>
+              ></multiple-photo-upload>
               <!-- Достижения с эмодзи и текстом -->
+              <div class="button-container">
+                <button @click="sendNewPhotos">Сохранить фотки</button>
+              </div>
 
               <div class="button-container">
                 <button type="submit" class="save-button">Сохранить</button>
