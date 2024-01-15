@@ -726,7 +726,7 @@ const App = {
     async sendNewPhotos() {
       for (let i = 0; i < this.sections.aboutClub.imageData.length; i++) {
         let photo = this.sections.aboutClub.imageData[i];
-
+        console.log(photo);
         // Check if the photo is new and needs to be uploaded
         if (photo.isNew) {
           try {
@@ -738,7 +738,7 @@ const App = {
               method: "POST",
               body: formData,
             });
-
+            console.log(response);
             if (!response.ok) {
               throw new Error("Network response was not ok");
             }
