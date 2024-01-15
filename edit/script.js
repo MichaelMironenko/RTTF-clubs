@@ -289,7 +289,7 @@ const MultiplePhotoUpload = {
             formData.append("pwd", pwd);
             console.log(formData);
 
-            let response = await fetch("/path/to/photoLoad.php", {
+            let response = await fetch("/php/photoLoad.php", {
               method: "POST",
               body: formData,
             });
@@ -353,7 +353,7 @@ const MultiplePhotoUpload = {
            @dragenter="dragEnter(index)" 
            @dragleave="dragLeave()" 
            @drop="drop()">
-        <img :src="item" class="photo-preview" />
+        <img :src="item.src" class="photo-preview" />
         <img src="delete.svg" @click="removeImage(index)" class="delete-button" />
       </div>
     </div>
@@ -367,6 +367,9 @@ const MultiplePhotoUpload = {
     </div>
   </div>
   <input type="file" ref="fileInput" @change="handleFileSelected" class="upload-input" multiple />
+          <div class="button-container">
+                <button @click="sendNewPhotos">Сохранить фотки</button>
+              </div>
 </div>
   `,
 };
