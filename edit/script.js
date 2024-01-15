@@ -267,22 +267,53 @@ const MultiplePhotoUpload = {
             // Convert the canvas content to a data URL (base64 encoded image)
             const dataUrl = canvas.toDataURL("image/jpeg", 0.6); // Adjust the quality as needed
 
-            // Push the resized image to imageData array or update imageData for single photo
-            if (this.singlePhoto) {
-              this.imageData = dataUrl;
-            } else {
-              this.imageData.push(dataUrl);
-            }
-
-            // Emit an event with the updated image data
-            this.$emit("image-uploaded", {
-              imageData: this.imageData,
-              sectionId: this.sectionId,
-            });
+            // Push the resized image to imageData array with isNew flag and original file reference
+            this.imageData.push({ src: dataUrl, isNew: true, file: file });
           };
           img.src = e.target.result;
         };
         reader.readAsDataURL(file);
+      }
+    },
+
+    async sendNewPhotos() {
+      for (let i = 0; i < this.imageData.length; i++) {
+        let photo = this.imageData[i];
+        if (photo.isNew) {
+          try {
+            let formData = new FormData();
+            const pwdMatch = document.cookie.match(/user_pass=([^;]+)/);
+            const pwd = pwdMatch ? pwdMatch[1] : "";
+            formData.append("photo", photo.file);
+            formData.append("club", this.clubName);
+            formData.append("pwd", pwd);
+            console.log(formData);
+
+            let response = await fetch("/path/to/photoLoad.php", {
+              method: "POST",
+              body: formData,
+            });
+
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+
+            let result = await response.json();
+
+            if (result.err.length > 0) {
+              throw new Error(result.err);
+            }
+
+            // Update the imageData with the new name from the server
+            this.imageData[i] = {
+              src: result.newName,
+              isNew: false,
+              file: null,
+            };
+          } catch (error) {
+            console.error("Error uploading photo:", error.message);
+          }
+        }
       }
     },
     dragOverHandler(event) {
@@ -721,47 +752,6 @@ const App = {
     },
     saveEvent(index) {
       this.editingEventIndex = null;
-    },
-
-    async sendNewPhotos() {
-      for (let i = 0; i < this.sections.aboutClub.imageData.length; i++) {
-        let photo = this.sections.aboutClub.imageData[i];
-        console.log(photo);
-        // Check if the photo is new and needs to be uploaded
-        if (photo.isNew) {
-          try {
-            let formData = new FormData();
-            formData.append("photo", photo.file);
-
-            // Replace with your actual upload URL and parameters
-            let response = await fetch("/php/photoLoad.php", {
-              method: "POST",
-              body: formData,
-            });
-            console.log(response);
-            if (!response.ok) {
-              throw new Error("Network response was not ok");
-            }
-
-            let result = await response.json();
-
-            // Check for server-side errors
-            if (result.err.length > 0) {
-              throw new Error(result.err);
-            }
-
-            // Update the imageData with the new name from the server
-            this.sections.aboutClub.imageData[i] = {
-              ...photo,
-              file: null,
-              isNew: false,
-              name: result.newName,
-            };
-          } catch (error) {
-            console.error("Error uploading photo:", error.message);
-          }
-        }
-      }
     },
 
     updateEventData(index, key, eventPayload) {
