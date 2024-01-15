@@ -284,10 +284,10 @@ const MultiplePhotoUpload = {
             let formData = new FormData();
             const pwdMatch = document.cookie.match(/user_pass=([^;]+)/);
             const pwd = pwdMatch ? pwdMatch[1] : "";
+            console.log(pwd, this.clubName);
+            formData.append("club", encodeURIComponent(this.clubName));
+            formData.append("pwd", encodeURIComponent(pwd)); // Ensure 'pwd' is defined in your component
             formData.append("photo", photo.file);
-            formData.append("club", this.clubName);
-            formData.append("pwd", pwd);
-            console.log(formData);
 
             let response = await fetch("/php/photoLoad.php", {
               method: "POST",
