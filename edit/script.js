@@ -288,7 +288,9 @@ const MultiplePhotoUpload = {
             formData.append("club", "rubin");
             formData.append("pwd", encodeURIComponent(pwd));
             formData.append("photo", photo.file);
-            console.log(formData);
+            for (let [key, value] of formData.entries()) {
+              console.log(key, value);
+            }
             let response = await fetch("/php/photoLoad.php", {
               method: "POST",
               body: formData,
