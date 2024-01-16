@@ -286,7 +286,7 @@ const MultiplePhotoUpload = {
             const pwd = pwdMatch ? pwdMatch[1] : "";
             console.log(pwd, this.clubName);
             formData.append("club", encodeURIComponent(this.clubName));
-            formData.append("pwd", encodeURIComponent(pwd)); // Ensure 'pwd' is defined in your component
+            formData.append("pwd", encodeURIComponent(pwd));
             formData.append("photo", photo.file);
 
             let response = await fetch("/php/photoLoad.php", {
@@ -689,7 +689,8 @@ const App = {
     };
   },
   created() {
-    this.loadFromLocalStorage();
+    // this.loadFromLocalStorage();
+    this.loadfromJSON();
     // this.loadData();
   },
 
@@ -735,7 +736,7 @@ const App = {
     },
   },
   methods: {
-    async created() {
+    async loadfromJSON() {
       try {
         const subdomain = window.location.hostname.split(".")[0];
         // this.clubName = subdomain;
