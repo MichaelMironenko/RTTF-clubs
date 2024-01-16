@@ -284,8 +284,9 @@ const MultiplePhotoUpload = {
             let formData = new FormData();
             const pwdMatch = document.cookie.match(/user_pass=([^;]+)/);
             const pwd = pwdMatch ? pwdMatch[1] : "";
-            console.log(pwd, this.clubName);
-            formData.append("club", "rubin");
+            this.clubName = "rubin";
+
+            formData.append("club", this.clubName);
             formData.append("pwd", pwd);
             formData.append("photo", photo.file);
             for (let [key, value] of formData.entries()) {
@@ -305,6 +306,8 @@ const MultiplePhotoUpload = {
             if (result.err.length > 0) {
               throw new Error(result.err);
             }
+
+            const photoPath = `/photos/${this.clubName}/${result.newName}`;
 
             // Update the imageData with the new name from the server
             this.imageData[i] = {
