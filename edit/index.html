@@ -109,6 +109,7 @@
                 :initial-image-data="sections.aboutClub.imageData"
                 :label="'Галерея фото клуба (до 20 фото, желательно в альбомной ориентации)'"
                 :section-id="'aboutClub'"
+                ref="photoUploader"
                 @image-uploaded="handleImageUpload"
               ></multiple-photo-upload>
               <!-- Достижения с эмодзи и текстом -->

@@ -946,6 +946,11 @@ const App = {
           section.menu = section.menu.filter((category) => !category.deleted);
         }
 
+        if (sectionId === "aboutClub") {
+          console.log("hello!");
+          this.$refs.photoUploader.sendNewPhotos();
+        }
+
         if (sectionId === "coaches") {
           this.sections.coaches.coachesList =
             this.sections.coaches.coachesList.filter((coach) => {
