@@ -947,7 +947,7 @@ const App = {
         }
 
         if (sectionId === "aboutClub") {
-          console.log("hello!");
+          console.log(this.$refs);
           this.$refs.photoUploader.sendNewPhotos();
         }
 
