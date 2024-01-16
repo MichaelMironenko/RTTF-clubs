@@ -284,6 +284,7 @@ const MultiplePhotoUpload = {
             let formData = new FormData();
             const pwdMatch = document.cookie.match(/user_pass=([^;]+)/);
             const pwd = pwdMatch ? pwdMatch[1] : "";
+            console.log(this.clubName);
             this.clubName = "rubin";
 
             formData.append("club", this.clubName);
@@ -746,7 +747,7 @@ const App = {
         const subdomain = window.location.hostname.split(".")[0];
         // this.clubName = subdomain;
         this.clubName = "rubin";
-
+        console.log(this.clubName);
         const dataUrl = `/json/${subdomain}.json?timestamp=${new Date().getTime()}`;
         const response = await fetch(dataUrl);
         if (!response.ok) {
