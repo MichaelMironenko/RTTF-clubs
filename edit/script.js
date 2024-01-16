@@ -149,6 +149,7 @@ const MultiplePhotoUpload = {
   props: {
     label: String,
     sectionId: String,
+    clubName: String,
     maxImages: {
       type: Number,
       default: 20,
