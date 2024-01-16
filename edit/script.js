@@ -285,7 +285,7 @@ const MultiplePhotoUpload = {
             const pwdMatch = document.cookie.match(/user_pass=([^;]+)/);
             const pwd = pwdMatch ? pwdMatch[1] : "";
             console.log(pwd, this.clubName);
-            formData.append("club", encodeURIComponent("rubin"));
+            formData.append("club", "rubin");
             formData.append("pwd", encodeURIComponent(pwd));
             formData.append("photo", photo.file);
 
