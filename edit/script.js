@@ -757,6 +757,7 @@ const App = {
       } catch (e) {
         this.loadFromLocalStorage();
         console.error("Ошибка при загрузке данных:", e);
+        console.log(this.clubName);
       }
     },
     saveEvent(index) {
