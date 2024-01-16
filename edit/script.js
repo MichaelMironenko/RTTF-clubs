@@ -301,7 +301,7 @@ const MultiplePhotoUpload = {
             }
 
             let result = await response.json();
-
+            console.log(result);
             if (result.err.length > 0) {
               throw new Error(result.err);
             }
