@@ -311,7 +311,7 @@ const MultiplePhotoUpload = {
 
             // Update the imageData with the new name from the server
             this.imageData[i] = {
-              src: result.newName,
+              src: photoPath,
               isNew: false,
               file: null,
             };
