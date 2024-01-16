@@ -286,7 +286,7 @@ const MultiplePhotoUpload = {
             const pwd = pwdMatch ? pwdMatch[1] : "";
             console.log(pwd, this.clubName);
             formData.append("club", "rubin");
-            formData.append("pwd", encodeURIComponent(pwd));
+            formData.append("pwd", pwd);
             formData.append("photo", photo.file);
             for (let [key, value] of formData.entries()) {
               console.log(key, value);
