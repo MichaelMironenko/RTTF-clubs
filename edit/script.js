@@ -948,7 +948,7 @@ const App = {
 
         if (sectionId === "aboutClub") {
           console.log(this.$refs);
-          this.$refs.photoUploader.sendNewPhotos();
+          this.$refs.photoUploader[0].sendNewPhotos();
         }
 
         if (sectionId === "coaches") {
