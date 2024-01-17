@@ -362,6 +362,7 @@ const MultiplePhotoUpload = {
           }
         }
       }
+      console.log(this.imageData);
     },
     dragOverHandler(event) {
       event.preventDefault();
