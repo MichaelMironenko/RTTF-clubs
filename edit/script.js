@@ -244,7 +244,14 @@ const MultiplePhotoUpload = {
       this.displayData = [];
     },
     removeImage(index) {
-      this.imageData.splice(index, 1);
+      const image = this.imageData[index];
+      if (image && image.isNew) {
+        // Если фото новое, просто удаляем его
+        this.imageData.splice(index, 1);
+      } else {
+        // Если фото уже существует, помечаем его как удаленное
+        this.$set(this.imageData, index, { ...image, isDeleted: true });
+      }
     },
     previewImage(file) {
       if (file && file.type.startsWith("image/")) {
@@ -276,7 +283,44 @@ const MultiplePhotoUpload = {
         reader.readAsDataURL(file);
       }
     },
+    async deletePhotos() {
+      const photosToDelete = this.imageData.filter(
+        (photo) => photo.isDeleted && !photo.isNew
+      );
 
+      for (const photo of photosToDelete) {
+        try {
+          let formData = new FormData();
+          const pwdMatch = document.cookie.match(/user_pass=([^;]+)/);
+          const pwd = pwdMatch ? pwdMatch[1] : "";
+          formData.append("club", this.clubName);
+          formData.append("pwd" /* ваш пароль */);
+          formData.append("del", photo.fileName); // предполагаем, что имя файла хранится в свойстве fileName
+
+          let response = await fetch("/php/photoDel.php", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error("Ошибка удаления фото");
+          }
+
+          let result = await response.json();
+          if (result.err.length > 0) {
+            throw new Error(result.err);
+          }
+
+          // Удаляем фото из массива, если сервер вернул успешный ответ
+          this.imageData = this.imageData.filter((p) => p !== photo);
+        } catch (error) {
+          console.error("Ошибка при удалении фото:", error);
+        }
+      }
+
+      // После удаления всех фото, загружаем новые
+      await this.sendNewPhotos();
+    },
     async sendNewPhotos() {
       for (let i = 0; i < this.imageData.length; i++) {
         let photo = this.imageData[i];
@@ -285,14 +329,11 @@ const MultiplePhotoUpload = {
             let formData = new FormData();
             const pwdMatch = document.cookie.match(/user_pass=([^;]+)/);
             const pwd = pwdMatch ? pwdMatch[1] : "";
-            console.log(this.clubName);
 
             formData.append("club", this.clubName);
             formData.append("pwd", pwd);
             formData.append("photo", photo.file);
-            for (let [key, value] of formData.entries()) {
-              console.log(key, value);
-            }
+
             let response = await fetch("/php/photoLoad.php", {
               method: "POST",
               body: formData,
@@ -303,7 +344,7 @@ const MultiplePhotoUpload = {
             }
 
             let result = await response.json();
-            console.log(result);
+
             if (result.err.length > 0) {
               throw new Error(result.err);
             }
@@ -745,9 +786,8 @@ const App = {
     async loadfromJSON() {
       try {
         const subdomain = window.location.hostname.split(".")[0];
-        // this.clubName = subdomain;
-        this.clubName = "rubin";
-        console.log(this.clubName);
+        this.clubName = subdomain;
+
         const dataUrl = `/json/${subdomain}.json?timestamp=${new Date().getTime()}`;
         const response = await fetch(dataUrl);
         if (!response.ok) {
@@ -758,7 +798,6 @@ const App = {
       } catch (e) {
         this.loadFromLocalStorage();
         console.error("Ошибка при загрузке данных:", e);
-        console.log(this.clubName);
       }
     },
     saveEvent(index) {
@@ -813,16 +852,39 @@ const App = {
       };
       return types[value] || value;
     },
-    saveToLocalStorage() {
-      console.log("Saving sections to localStorage", this.sections);
-
+    saveData() {
+      const club = this.clubName;
+      const pwdMatch = document.cookie.match(/user_pass=([^;]+)/);
+      const pwd = pwdMatch ? pwdMatch[1] : "";
+      const json = JSON.stringify({ sections: this.sections });
       localStorage.setItem("sections", JSON.stringify(this.sections));
-
-      this.saveSuccessful = true;
-
-      setTimeout(() => {
-        this.saveSuccessful = false;
-      }, 2000);
+      fetch("/php/edit.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: `trainer=${encodeURIComponent(club)}&pwd=${encodeURIComponent(
+          pwd
+        )}&json=${encodeURIComponent(json)}`,
+      }).then((response) => response.json());
+      console
+        .log(response)
+        .then((data) => {
+          if (data.err) {
+            console.log(data.err);
+            this.errorMessage = data.err;
+            this.showModal = true;
+          } else {
+            this.saveSuccessful = true;
+            setTimeout(() => {
+              this.saveSuccessful = false;
+            }, 2000);
+          }
+        })
+        .catch((error) => {
+          console.error("Ошибка:", error);
+          this.saveSuccessful = false;
+        });
     },
     addCategory() {
       this.sections.prices.menu.push({ title: "", items: [], deleted: false });
@@ -949,8 +1011,8 @@ const App = {
         }
 
         if (sectionId === "aboutClub") {
-          console.log(this.$refs);
-          this.$refs.photoUploader[0].sendNewPhotos();
+          this.$refs.photoUploader[0].deletePhotos();
+          console.log(this.sections.aboutClub.imageData);
         }
 
         if (sectionId === "coaches") {
@@ -972,7 +1034,7 @@ const App = {
         }
 
         if (isValid) {
-          this.saveToLocalStorage();
+          this.saveData();
           this.isSubmitAttempted = false;
         } else if (firstErrorElementId) {
           this.$nextTick(() => {
@@ -981,7 +1043,7 @@ const App = {
         }
       } else {
         // Если editable определен и равен false, сохраняем без валидации
-        this.saveToLocalStorage();
+        this.saveData();
       }
     },
 
