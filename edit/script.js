@@ -866,12 +866,11 @@ const App = {
         body: `trainer=${encodeURIComponent(club)}&pwd=${encodeURIComponent(
           pwd
         )}&json=${encodeURIComponent(json)}`,
-      }).then((response) => response.json());
-      console
-        .log(response)
+      })
+        .then((response) => response.json())
         .then((data) => {
+          console.log(data);
           if (data.err) {
-            console.log(data.err);
             this.errorMessage = data.err;
             this.showModal = true;
           } else {
