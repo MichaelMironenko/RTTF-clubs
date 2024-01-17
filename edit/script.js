@@ -863,9 +863,9 @@ const App = {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: `trainer=${encodeURIComponent(club)}&pwd=${encodeURIComponent(
-          pwd
-        )}&json=${encodeURIComponent(json)}`,
+        body: `trainer=${encodeURIComponent(
+          club
+        )}&pwd=${pwd}&json=${encodeURIComponent(json)}`,
       })
         .then((response) => response.json())
         .then((data) => {
