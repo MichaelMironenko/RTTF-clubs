@@ -795,8 +795,9 @@ const App = {
         }
         const jsonData = await response.json();
         this.sections = jsonData.sections;
+        console.log(this.sections);
       } catch (e) {
-        this.loadFromLocalStorage();
+        // this.loadFromLocalStorage();
         console.error("Ошибка при загрузке данных:", e);
       }
     },
@@ -838,7 +839,7 @@ const App = {
       }
     },
     loadFromLocalStorage() {
-      // const storedData = localStorage.getItem("sections");
+      const storedData = localStorage.getItem("sections");
       console.log(storedData);
       if (storedData) {
         this.sections = JSON.parse(storedData);
