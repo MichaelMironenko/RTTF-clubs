@@ -838,7 +838,7 @@ const App = {
       }
     },
     loadFromLocalStorage() {
-      const storedData = localStorage.getItem("sections");
+      // const storedData = localStorage.getItem("sections");
       console.log(storedData);
       if (storedData) {
         this.sections = JSON.parse(storedData);
