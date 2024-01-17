@@ -863,7 +863,7 @@ const App = {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: `trainer=${encodeURIComponent(
+        body: `club=${encodeURIComponent(
           club
         )}&pwd=${pwd}&json=${encodeURIComponent(json)}`,
       })
